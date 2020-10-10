@@ -1,0 +1,19 @@
+{
+    "name": "danilovl/permission-middleware-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony bundle provides simple mechanism control permission for class or his method.",
+    "keywords": ["php","symfony","bundle"],
+    "authors": [
+        {
+            "name": "Vladimir Danilov"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Danilovl\\PermissionMiddlewareBundle\\": "src/" }
+    },
+    "require": {
+        "php": "^7.4.0",
+        "symfony/framework-bundle": "^5.0",
+        "doctrine/annotations": "^1.0"
+    }
+}
