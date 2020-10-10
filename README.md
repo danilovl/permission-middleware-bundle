@@ -104,8 +104,8 @@ You can use `PermissionMiddleware` annotation for class or method.
 
 namespace App\Controller;
 
-use App\Annotation\PermissionMiddleware;
-use App\Helper\SystemEventHelper;
+use Danilovl\PermissionMiddlewareBundle\Annotation\PermissionMiddleware;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{
     Request,
     Response
@@ -155,7 +155,7 @@ use Symfony\Component\HttpFoundation\{
 *     }
 * )
 */
-class HomeController extends BaseController
+class HomeController extends AbstractController
 {
     /**
      * @PermissionMiddleware(
