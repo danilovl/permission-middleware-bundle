@@ -2,12 +2,12 @@
 
 namespace Danilovl\PermissionMiddlewareBundle\EventListener;
 
+use Danilovl\PermissionMiddlewareBundle\Attribute\PermissionMiddleware;
 use Danilovl\PermissionMiddlewareBundle\Model\{
-	FlashPermissionModel,
-	TransPermissionModel,
-	RedirectPermissionModel
+    FlashPermissionModel,
+    TransPermissionModel,
+    RedirectPermissionModel
 };
-use Danilovl\PermissionMiddlewareBundle\Annotation\PermissionMiddleware;
 use DateTime;
 use Doctrine\Common\Annotations\Reader;
 use ReflectionClass;
@@ -22,202 +22,185 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PermissionListener
 {
-	private Reader $reader;
-	private Security $security;
-	private RouterInterface $router;
-	private TranslatorInterface $translator;
-	private SessionInterface $session;
-	private ControllerEvent $controllerEvent;
+    private bool $checkPermissionMethod = true;
+    private ControllerEvent $controllerEvent;
 
-	public function __construct(
-		Security $security,
-		RouterInterface $router,
-		TranslatorInterface $translator,
-		SessionInterface $session,
-		Reader $reader
-	) {
-		$this->security = $security;
-		$this->router = $router;
-		$this->translator = $translator;
-		$this->session = $session;
-		$this->reader = $reader;
-	}
+    public function __construct(
+        private Security $security,
+        private RouterInterface $router,
+        private TranslatorInterface $translator,
+        private SessionInterface $session,
+        private Reader $reader
+    ) {
+    }
 
-	public function onKernelController(ControllerEvent $event)
-	{
-		$controllers = $event->getController();
-		if (!is_array($controllers)) {
-			return;
-		}
+    public function onKernelController(ControllerEvent $event)
+    {
+        $controller = $event->getController();
+        if (!is_array($controller)) {
+            return;
+        }
 
-		$this->controllerEvent = $event;
+        $this->controllerEvent = $event;
 
-		$this->checkPermissionClass($controllers);
-		$this->checkPermissionMethod($controllers);
-	}
+        $this->checkPermissionClass($controller);
+        if ($this->checkPermissionMethod) {
+            $this->checkPermissionMethod($controller);
+        }
+    }
 
-	private function checkPermissionClass(array $controllers): void
-	{
-		[$controller] = $controllers;
+    private function checkPermissionClass(array $controllers): void
+    {
+        [$controller] = $controllers;
 
-		/** @var PermissionMiddleware $classPermissionMiddleware */
-		$classPermissionMiddleware = $this->reader->getClassAnnotation(
-			new ReflectionClass($controller),
-			PermissionMiddleware::class
-		);
+        $attributes = (new ReflectionClass($controller))->getAttributes(PermissionMiddleware::class);
+        foreach ($attributes as $attribute) {
+            $this->checkPermissionMethod = $this->checkPermissionMethod === false ? false : $this->checkPermissions($attribute->newInstance());
+        }
+    }
 
-		$this->checkPermissions($classPermissionMiddleware);
-	}
+    private function checkPermissionMethod(array $controllers): void
+    {
+        [$controller, $methodName] = $controllers;
 
-	private function checkPermissionMethod(array $controllers): void
-	{
-		[$controller, $methodName] = $controllers;
+        $attributes = (new ReflectionObject($controller))->getMethod($methodName)->getAttributes(PermissionMiddleware::class);
+        foreach ($attributes as $attribute) {
+            $this->checkPermissions($attribute->newInstance());
+        }
+    }
 
-		/** @var PermissionMiddleware $methodPermissionMiddleware */
-		$methodPermissionMiddleware = $this->reader->getMethodAnnotation(
-			(new ReflectionObject($controller))->getMethod($methodName),
-			PermissionMiddleware::class
-		);
+    private function checkPermissions(PermissionMiddleware $permissionMiddleware): bool
+    {
+        $isRedirect = $this->checkRedirect($permissionMiddleware);
+        if ($isRedirect === true) {
+            return false;
+        }
 
-		$this->checkPermissions($methodPermissionMiddleware);
-	}
+        foreach (['user', 'date'] as $method) {
+            $checkMethod = sprintf('check%s', strtoupper($method));
+            $access = $this->{$checkMethod}($permissionMiddleware);
+            if ($access === false) {
+                $this->createResponse(
+                    $permissionMiddleware->{$method}->redirect,
+                    $permissionMiddleware->{$method}->exceptionMessage
+                );
+                return false;
+            }
+        }
 
-	private function checkPermissions(?PermissionMiddleware $permissionMiddleware): void
-	{
-		if ($permissionMiddleware === null) {
-			return;
-		}
+        return true;
+    }
 
-		$access = $this->checkRedirect($permissionMiddleware);
-		if ($access === false) {
-			return;
-		}
+    private function createResponse(
+        RedirectPermissionModel $redirect,
+        TransPermissionModel $trans
+    ) {
+        if ($redirect->route !== null) {
+            $this->addFlashBag($redirect->flash);
+            $this->setControllerRedirectResponse($redirect);
 
-		foreach (['user', 'date'] as $method) {
-			$checkMethod = sprintf('check%s', strtoupper($method));
-			$access = $this->{$checkMethod}($permissionMiddleware);
-			if ($access === false) {
-				$this->createResponse(
-					$permissionMiddleware->{$method}->redirect,
-					$permissionMiddleware->{$method}->exceptionMessage
-				);
-				break;
-			}
-		}
-	}
+            return;
+        }
 
-	private function createResponse(
-		RedirectPermissionModel $redirect,
-		TransPermissionModel $trans
-	) {
-		if ($redirect->route !== null) {
-			$this->addFlashBag($redirect->flash);
-			$this->setControllerRedirectResponse($redirect);
+        throw new AccessDeniedHttpException($this->getExceptionMessage($trans));
+    }
 
-			return;
-		}
+    private function checkUser(PermissionMiddleware $permissionMiddleware): bool
+    {
+        $user = $this->security->getUser();
+        if ($user === null) {
+            return false;
+        }
 
-		throw new AccessDeniedHttpException($this->getExceptionMessage($trans));
-	}
+        $roles = $permissionMiddleware->user->roles;
+        if ($roles !== null) {
+            $isGranted = false;
+            foreach ($roles as $role) {
+                if ($this->security->isGranted($role, $user)) {
+                    $isGranted = true;
+                    break;
+                }
+            }
 
-	private function checkUser(PermissionMiddleware $permissionMiddleware): bool
-	{
-		$user = $this->security->getUser();
-		if ($user === null) {
-			return false;
-		}
+            if (!$isGranted) {
+                return false;
+            }
+        }
 
-		$roles = $permissionMiddleware->user->roles;
-		if ($roles !== null) {
-			$isGranted = false;
-			foreach ($roles as $role) {
-				if ($this->security->isGranted($role, $user)) {
-					$isGranted = true;
-					break;
-				}
-			}
+        $userNames = $permissionMiddleware->user->userNames;
+        if ($userNames !== null) {
+            if ($user === null || !in_array($user->getUsername(), $userNames, true)) {
+                return false;
+            }
+        }
 
-			if (!$isGranted) {
-				return false;
-			}
-		}
+        return true;
+    }
 
-		$userNames = $permissionMiddleware->user->userNames;
-		if ($userNames !== null) {
-			if ($user === null || !in_array($user->getUsername(), $userNames, true)) {
-				return false;
-			}
-		}
+    private function checkDate(PermissionMiddleware $permissionMiddleware): bool
+    {
+        $dateFrom = $permissionMiddleware->date->from;
+        if ($dateFrom !== null) {
+            if (new DateTime < $dateFrom) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        $dateTo = $permissionMiddleware->date->to;
+        if ($dateTo !== null) {
+            if (new DateTime > $dateTo) {
+                return false;
+            }
+        }
 
-	private function checkDate(PermissionMiddleware $permissionMiddleware): bool
-	{
-		$dateFrom = $permissionMiddleware->date->from;
-		if ($dateFrom !== null) {
-			if (new DateTime < $dateFrom) {
-				return false;
-			}
-		}
+        return true;
+    }
 
-		$dateTo = $permissionMiddleware->date->to;
-		if ($dateTo !== null) {
-			if (new DateTime > $dateTo) {
-				return false;
-			}
-		}
+    private function checkRedirect(PermissionMiddleware $permissionMiddleware): bool
+    {
+        if ($permissionMiddleware->redirect->route === null) {
+            return false;
+        }
 
-		return true;
-	}
+        $this->setControllerRedirectResponse($permissionMiddleware->redirect);
 
-	private function checkRedirect(PermissionMiddleware $permissionMiddleware): bool
-	{
-		if ($permissionMiddleware->redirect->route === null) {
-			return true;
-		}
+        return true;
+    }
 
-		$this->setControllerRedirectResponse($permissionMiddleware->redirect);
+    private function addFlashBag(FlashPermissionModel $flashPermissionModel): void
+    {
+        $type = $flashPermissionModel->type;
+        if ($type === null) {
+            return;
+        }
 
-		return false;
-	}
+        $trans = $flashPermissionModel->trans->getArguments();
+        $this->session->getFlashBag()->add(
+            $type,
+            $this->translator->trans(...$trans)
+        );
+    }
 
-	private function addFlashBag(FlashPermissionModel $flashPermissionModel): void
-	{
-		$type = $flashPermissionModel->type;
-		if ($type === null) {
-			return;
-		}
+    private function setControllerRedirectResponse(RedirectPermissionModel $redirectPermissionModel): void
+    {
+        $this->addFlashBag($redirectPermissionModel->flash);
 
-		$trans = $flashPermissionModel->trans->getArguments();
-		$this->session->getFlashBag()->add(
-			$type,
-			$this->translator->trans(...$trans)
-		);
-	}
+        $this->controllerEvent->setController(function () use ($redirectPermissionModel) {
+            $url = $this->router->generate(
+                $redirectPermissionModel->route,
+                $redirectPermissionModel->parameters
+            );
 
-	private function setControllerRedirectResponse(RedirectPermissionModel $redirectPermissionModel): void
-	{
-		$this->addFlashBag($redirectPermissionModel->flash);
+            return new RedirectResponse($url);
+        });
+    }
 
-		$this->controllerEvent->setController(function () use ($redirectPermissionModel) {
-			$url = $this->router->generate(
-				$redirectPermissionModel->route,
-				$redirectPermissionModel->parameters
-			);
+    private function getExceptionMessage(TransPermissionModel $transPermissionModel): string
+    {
+        if ($transPermissionModel->message === null) {
+            return '';
+        }
 
-			return new RedirectResponse($url);
-		});
-	}
-
-	private function getExceptionMessage(TransPermissionModel $transPermissionModel): string
-	{
-		if ($transPermissionModel->message === null) {
-			return '';
-		}
-
-		return $this->translator->trans(
-			...$transPermissionModel->getArguments()
-		);
-	}
+        return $this->translator->trans(...$transPermissionModel->getArguments());
+    }
 }
