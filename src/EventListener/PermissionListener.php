@@ -55,7 +55,7 @@ class PermissionListener
 
         $attributes = (new ReflectionClass($controller))->getAttributes(PermissionMiddleware::class);
         foreach ($attributes as $attribute) {
-            $this->checkPermissionMethod = $this->checkPermissionMethod === false ? false : $this->checkPermissions($attribute->newInstance());
+            $this->checkPermissionMethod = !($this->checkPermissionMethod === false) && $this->checkPermissions($attribute->newInstance());
         }
     }
 
@@ -128,10 +128,8 @@ class PermissionListener
         }
 
         $userNames = $permissionMiddleware->user->userNames;
-        if ($userNames !== null) {
-            if ($user === null || !in_array($user->getUsername(), $userNames, true)) {
-                return false;
-            }
+        if ($userNames !== null && !in_array($user->getUsername(), $userNames, true)) {
+            return false;
         }
 
         return true;
@@ -185,7 +183,7 @@ class PermissionListener
     {
         $this->addFlashBag($redirectPermissionModel->flash);
 
-        $this->controllerEvent->setController(function () use ($redirectPermissionModel) {
+        $this->controllerEvent->setController(function () use ($redirectPermissionModel): RedirectResponse {
             $url = $this->router->generate(
                 $redirectPermissionModel->route,
                 $redirectPermissionModel->parameters
