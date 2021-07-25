@@ -414,7 +414,7 @@ class HomeController extends AbstractController
    }   
    
    #[PermissionMiddleware([
-        'class' => [
+        'service' => [
             'name' => 'app.middleware.create_article',
             'method' => 'handle'
         ]
