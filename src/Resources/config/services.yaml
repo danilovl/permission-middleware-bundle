@@ -1,7 +1,7 @@
 services:
   danilovl.listener.permission_middleware:
     class: Danilovl\PermissionMiddlewareBundle\EventListener\PermissionListener
-    public: false
+    public: true
     autowire: true
     tags:
       - { name: kernel.event_listener, event: kernel.controller, method: onKernelController}

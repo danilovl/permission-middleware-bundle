@@ -32,11 +32,14 @@ return [
 
 Configuration tree options for attribute.
 
+The `accessDeniedHttpException`parameter will be useful for `ClassMiddleware`, `ServiceMiddleware` when you create custom response and you won't want throw default AccessDeniedHttpException.
+
 ```php
 $configurationTree = [
     'user' => [
         'roles',
         'userNames',
+        'accessDeniedHttpException',
         'exceptionMessage' => [
             'message',
             'messageParameters',
@@ -60,6 +63,7 @@ $configurationTree = [
     'date' => [
         'from',
         'to',
+        'accessDeniedHttpException',
         'exceptionMessage' => [
             'message',
             'messageParameters',
@@ -83,6 +87,7 @@ $configurationTree = [
     'redirect' => [
         'route',
         'parameters',
+        'accessDeniedHttpException',
         'flash' => [
             'type',
             'trans' => [
@@ -92,11 +97,60 @@ $configurationTree = [
                 'locale'
             ]
         ]
-    ]
+    ],
+    'class' => [
+        'name',
+        'method',
+        'accessDeniedHttpException',
+        'exceptionMessage' => [
+            'message',
+            'messageParameters',
+            'domain',
+            'locale'
+        ],
+        'redirect' => [
+            'route',
+            'parameters',
+            'flash' => [
+                'type',
+                'trans' => [
+                    'message',
+                    'messageParameters',
+                    'domain',
+                    'locale'
+                ]
+            ]
+        ]
+    ],   
+    'service' => [
+        'name',
+        'method',
+        'accessDeniedHttpException',
+        'exceptionMessage' => [
+            'message',
+            'messageParameters',
+            'domain',
+            'locale'
+        ],
+        'redirect' => [
+            'route',
+            'parameters',
+            'flash' => [
+                'type',
+                'trans' => [
+                    'message',
+                    'messageParameters',
+                    'domain',
+                    'locale'
+                ]
+            ]
+        ]
+    ],
 ];
 ```
 
 You can use `PermissionMiddleware` attribute for class or method.
+Method of `ClassMiddleware`, `ServiceMiddleware` accept `Symfony\Component\HttpKernel\Event\ControllerEvent` as argument and must return boolean.
 
 ```php
 <?php declare(strict_types=1);
@@ -130,7 +184,7 @@ use Symfony\Component\HttpFoundation\{
     'date' => [
         'from' => '01-01-2021',
         'exceptionMessage' => [
-            'message' => 'pp.permission_date_error_message'
+            'message' => 'app.permission_date_error_message'
         ],
         'redirect' => [
             'route' => 'profile_show',
@@ -150,6 +204,26 @@ use Symfony\Component\HttpFoundation\{
                 'message' => 'app.permission_action_flash_message'
             ]
         ]
+    ],
+   'class' => [
+        'name' => 'App\Middleware\HomeControllerMiddleware',
+        'method' => 'handle',
+        'exceptionMessage' => [
+            'message' => 'app.permission_date_error_message'
+        ],
+        'redirect' => [
+            'route' => 'profile_show',
+            'flash' => [
+                'type' => 'error',
+                'trans' => [
+                    'message' => 'app.permission_action_flash_message'
+                ]
+            ]
+        ]
+    ],   
+    'service' => [
+        'name' => 'app.middleware.home_controller',
+        'method' => 'handle',
     ]
 ])]
 class HomeController extends AbstractController
@@ -324,6 +398,28 @@ class HomeController extends AbstractController
         ]
    ])] 
    public function adminByUsernameExceptionMessage(Request $request): Response
+   {
+       return $this->render('home/admin.html.twig');
+   }   
+   
+   #[PermissionMiddleware([
+        'class' => [
+            'name' => 'App\Middleware\ShowCalendarMiddleware',
+            'method' => 'handle'
+        ]
+   ])] 
+   public function showCalendar(Request $request): Response
+   {
+       return $this->render('home/admin.html.twig');
+   }   
+   
+   #[PermissionMiddleware([
+        'class' => [
+            'name' => 'app.middleware.create_article',
+            'method' => 'handle'
+        ]
+   ])] 
+   public function createArticle(Request $request): Response
    {
        return $this->render('home/admin.html.twig');
    }

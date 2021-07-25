@@ -2,7 +2,9 @@
 
 namespace Danilovl\PermissionMiddlewareBundle\Model;
 
-class TransPermissionModel
+use Danilovl\PermissionMiddlewareBundle\Interfaces\CheckInterface;
+
+class TransPermissionModel implements CheckInterface
 {
     public ?string $message = null;
     public array $messageParameters = [];
@@ -34,5 +36,10 @@ class TransPermissionModel
         }
 
         return $data;
+    }
+
+    public function canCheck(): bool
+    {
+        return $this->message !== null;
     }
 }
