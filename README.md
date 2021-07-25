@@ -32,7 +32,7 @@ return [
 
 Configuration tree options for attribute.
 
-The `accessDeniedHttpException`parameter will be useful for `ClassMiddleware`, `ServiceMiddleware` when you create custom response and you won't want throw default AccessDeniedHttpException.
+The `accessDeniedHttpException` parameter will be useful for `ClassMiddleware`, `ServiceMiddleware` when you create custom response and you won't want throw default AccessDeniedHttpException.
 
 ```php
 $configurationTree = [
