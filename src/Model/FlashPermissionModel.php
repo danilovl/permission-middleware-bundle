@@ -2,7 +2,9 @@
 
 namespace Danilovl\PermissionMiddlewareBundle\Model;
 
-class FlashPermissionModel
+use Danilovl\PermissionMiddlewareBundle\Interfaces\CheckInterface;
+
+class FlashPermissionModel implements CheckInterface
 {
     public ?string $type = null;
     public TransPermissionModel $trans;
@@ -15,5 +17,10 @@ class FlashPermissionModel
 
         $this->type = !empty($options['type']) ? $options['type'] : null;
         $this->trans = new TransPermissionModel($options['trans'] ?? null);
+    }
+
+    public function canCheck(): bool
+    {
+        return $this->type !== null;
     }
 }

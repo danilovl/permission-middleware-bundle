@@ -3,12 +3,11 @@
 namespace Danilovl\PermissionMiddlewareBundle\Model;
 
 use Danilovl\PermissionMiddlewareBundle\Interfaces\CheckInterface;
-use DateTime;
 
-class DatePermissionModel implements CheckInterface
+class ClassPermissionModel implements CheckInterface
 {
-    public ?DateTime $from = null;
-    public ?DateTime $to = null;
+    public ?string $name = null;
+    public ?string $method = null;
     public TransPermissionModel $exceptionMessage;
     public RedirectPermissionModel $redirect;
     public bool $accessDeniedHttpException = true;
@@ -19,8 +18,8 @@ class DatePermissionModel implements CheckInterface
             return;
         }
 
-        $this->from = !empty($options['from']) ? new DateTime($options['from']) : null;
-        $this->to = !empty($options['to']) ? new DateTime($options['to']) : null;
+        $this->name = !empty($options['name']) ? $options['name'] : null;
+        $this->method = !empty($options['method']) ? $options['method'] : null;
         $this->exceptionMessage = new TransPermissionModel($options['exceptionMessage'] ?? null);
         $this->redirect = new RedirectPermissionModel($options['redirect'] ?? null);
         $this->accessDeniedHttpException = (bool) ($options['accessDeniedHttpException'] ?? true);
@@ -28,6 +27,6 @@ class DatePermissionModel implements CheckInterface
 
     public function canCheck(): bool
     {
-        return $this->from !== null || $this->to !== null;
+        return $this->name !== null && $this->method !== null;
     }
 }

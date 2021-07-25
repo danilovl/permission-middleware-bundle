@@ -9,9 +9,9 @@ use Danilovl\PermissionMiddlewareBundle\Model\{
     RedirectPermissionModel
 };
 use DateTime;
-use Doctrine\Common\Annotations\Reader;
 use ReflectionClass;
 use ReflectionObject;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -22,15 +22,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PermissionListener
 {
-    private bool $checkPermissionMethod = true;
-    private ControllerEvent $controllerEvent;
+    protected bool $checkPermissionMethod = true;
+    protected ControllerEvent $controllerEvent;
 
     public function __construct(
-        private Security $security,
-        private RouterInterface $router,
-        private TranslatorInterface $translator,
-        private SessionInterface $session,
-        private Reader $reader
+        protected Security $security,
+        protected RouterInterface $router,
+        protected TranslatorInterface $translator,
+        protected SessionInterface $session,
+        protected ContainerInterface $container
     ) {
     }
 
@@ -49,7 +49,7 @@ class PermissionListener
         }
     }
 
-    private function checkPermissionClass(array $controllers): void
+    protected function checkPermissionClass(array $controllers): void
     {
         [$controller] = $controllers;
 
@@ -59,7 +59,7 @@ class PermissionListener
         }
     }
 
-    private function checkPermissionMethod(array $controllers): void
+    protected function checkPermissionMethod(array $controllers): void
     {
         [$controller, $methodName] = $controllers;
 
@@ -69,21 +69,28 @@ class PermissionListener
         }
     }
 
-    private function checkPermissions(PermissionMiddleware $permissionMiddleware): bool
+    protected function checkPermissions(PermissionMiddleware $permissionMiddleware): bool
     {
         $isRedirect = $this->checkRedirect($permissionMiddleware);
         if ($isRedirect === true) {
             return false;
         }
 
-        foreach (['user', 'date'] as $method) {
+        foreach (['user', 'date', 'class', 'service'] as $method) {
+            if ($permissionMiddleware->{$method} === null) {
+                continue;
+            }
+
             $checkMethod = sprintf('check%s', strtoupper($method));
             $access = $this->{$checkMethod}($permissionMiddleware);
             if ($access === false) {
-                $this->createResponse(
-                    $permissionMiddleware->{$method}->redirect,
-                    $permissionMiddleware->{$method}->exceptionMessage
-                );
+                if ($permissionMiddleware->{$method}->accessDeniedHttpException) {
+                    $this->createResponse(
+                        $permissionMiddleware->{$method}->redirect,
+                        $permissionMiddleware->{$method}->exceptionMessage
+                    );
+                }
+
                 return false;
             }
         }
@@ -91,7 +98,7 @@ class PermissionListener
         return true;
     }
 
-    private function createResponse(
+    protected function createResponse(
         RedirectPermissionModel $redirect,
         TransPermissionModel $trans
     ) {
@@ -105,7 +112,7 @@ class PermissionListener
         throw new AccessDeniedHttpException($this->getExceptionMessage($trans));
     }
 
-    private function checkUser(PermissionMiddleware $permissionMiddleware): bool
+    protected function checkUser(PermissionMiddleware $permissionMiddleware): bool
     {
         $user = $this->security->getUser();
         if ($user === null) {
@@ -135,7 +142,7 @@ class PermissionListener
         return true;
     }
 
-    private function checkDate(PermissionMiddleware $permissionMiddleware): bool
+    protected function checkDate(PermissionMiddleware $permissionMiddleware): bool
     {
         $dateFrom = $permissionMiddleware->date->from;
         if ($dateFrom !== null) {
@@ -154,9 +161,9 @@ class PermissionListener
         return true;
     }
 
-    private function checkRedirect(PermissionMiddleware $permissionMiddleware): bool
+    protected function checkRedirect(PermissionMiddleware $permissionMiddleware): bool
     {
-        if ($permissionMiddleware->redirect->route === null) {
+        if ($permissionMiddleware->redirect === null || !$permissionMiddleware->redirect->canCheck()) {
             return false;
         }
 
@@ -165,21 +172,42 @@ class PermissionListener
         return true;
     }
 
-    private function addFlashBag(FlashPermissionModel $flashPermissionModel): void
+    protected function checkClass(PermissionMiddleware $permissionMiddleware): bool
     {
-        $type = $flashPermissionModel->type;
-        if ($type === null) {
+        $classMiddleware = $permissionMiddleware->class;
+        if (!$classMiddleware->canCheck()) {
+            return false;
+        }
+
+        return call_user_func_array([$classMiddleware->name, $classMiddleware->method], [$this->controllerEvent]);
+    }
+
+    protected function checkService(PermissionMiddleware $permissionMiddleware)
+    {
+        $serviceMiddleware = $permissionMiddleware->service;
+        if (!$serviceMiddleware->canCheck()) {
+            return false;
+        }
+
+        $service = $this->container->get($serviceMiddleware->name);
+
+        return call_user_func_array([$service, $serviceMiddleware->method], [$this->controllerEvent]);
+    }
+
+    protected function addFlashBag(FlashPermissionModel $flashPermissionModel): void
+    {
+        if (!$flashPermissionModel->canCheck()) {
             return;
         }
 
         $trans = $flashPermissionModel->trans->getArguments();
         $this->session->getFlashBag()->add(
-            $type,
+            $flashPermissionModel->type,
             $this->translator->trans(...$trans)
         );
     }
 
-    private function setControllerRedirectResponse(RedirectPermissionModel $redirectPermissionModel): void
+    protected function setControllerRedirectResponse(RedirectPermissionModel $redirectPermissionModel): void
     {
         $this->addFlashBag($redirectPermissionModel->flash);
 
@@ -193,9 +221,9 @@ class PermissionListener
         });
     }
 
-    private function getExceptionMessage(TransPermissionModel $transPermissionModel): string
+    protected function getExceptionMessage(TransPermissionModel $transPermissionModel): string
     {
-        if ($transPermissionModel->message === null) {
+        if (!$transPermissionModel->canCheck()) {
             return '';
         }
 
