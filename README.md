@@ -248,7 +248,7 @@ class HomeController extends AbstractController
         'date' => [
             'from' => '01-01-2021',
             'exceptionMessage' => [
-                'message' => 'pp.permission_date_error_message'
+                'message' => 'app.permission_date_error_message'
             ],
             'redirect' => [
                 'route' => 'profile_show',
