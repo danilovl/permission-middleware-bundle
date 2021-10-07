@@ -34,7 +34,7 @@ class PermissionListener
     ) {
     }
 
-    public function onKernelController(ControllerEvent $event)
+    public function onKernelController(ControllerEvent $event): void
     {
         $controller = $event->getController();
         if (!is_array($controller)) {
@@ -101,7 +101,7 @@ class PermissionListener
     protected function createResponse(
         RedirectPermissionModel $redirect,
         TransPermissionModel $trans
-    ) {
+    ): void {
         if ($redirect->route !== null) {
             $this->addFlashBag($redirect->flash);
             $this->setControllerRedirectResponse($redirect);
@@ -182,7 +182,7 @@ class PermissionListener
         return call_user_func_array([$classMiddleware->name, $classMiddleware->method], [$this->controllerEvent]);
     }
 
-    protected function checkService(PermissionMiddleware $permissionMiddleware)
+    protected function checkService(PermissionMiddleware $permissionMiddleware): mixed
     {
         $serviceMiddleware = $permissionMiddleware->service;
         if (!$serviceMiddleware->canCheck()) {
