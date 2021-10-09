@@ -1,3 +1,7 @@
+[![downloads](https://img.shields.io/packagist/dt/danilovl/permission-middleware-bundle)](https://packagist.org/packages/danilovl/permission-middleware-bundle)
+[![latest Stable Version](https://img.shields.io/packagist/v/danilovl/permission-middleware-bundle)](https://packagist.org/packages/danilovl/permission-middleware-bundle)
+[![license](https://img.shields.io/packagist/l/danilovl/permission-middleware-bundle)](https://packagist.org/packages/danilovl/permission-middleware-bundle)
+
 # PermissionMiddlewareBundle #
 
 ## About ##
@@ -425,3 +429,7 @@ class HomeController extends AbstractController
    }
 }
 ```
+
+## License
+
+The HashidsBundle is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

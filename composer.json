@@ -3,6 +3,7 @@
     "type": "symfony-bundle",
     "description": "Symfony bundle provides simple mechanism control permission for class or his method.",
     "keywords": ["php","symfony","bundle"],
+    "license": "MIT",
     "authors": [
         {
             "name": "Vladimir Danilov"
