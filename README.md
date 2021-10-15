@@ -1,3 +1,4 @@
+[![phpunit](https://github.com/danilovl/permission-middleware-bundle/actions/workflows/phpunit.yml/badge.svg)](https://github.com/danilovl/permission-middleware-bundle/actions/workflows/phpunit.yml)
 [![downloads](https://img.shields.io/packagist/dt/danilovl/permission-middleware-bundle)](https://packagist.org/packages/danilovl/permission-middleware-bundle)
 [![latest Stable Version](https://img.shields.io/packagist/v/danilovl/permission-middleware-bundle)](https://packagist.org/packages/danilovl/permission-middleware-bundle)
 [![license](https://img.shields.io/packagist/l/danilovl/permission-middleware-bundle)](https://packagist.org/packages/danilovl/permission-middleware-bundle)
