@@ -8,6 +8,7 @@ return static function (ContainerConfigurator $container): void {
     $container->services()
         ->set('danilovl.listener.permission_middleware', PermissionListener::class)
         ->autowire()
+        ->arg('$container', service('service_container'))
         ->public()
         ->tag('kernel.event_listener', ['event' => 'kernel.controller', 'method' => 'onKernelController'])
         ->alias(PermissionListener::class, 'danilovl.listener.permission_middleware');

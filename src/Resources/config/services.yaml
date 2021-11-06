@@ -3,5 +3,7 @@ services:
     class: Danilovl\PermissionMiddlewareBundle\EventListener\PermissionListener
     public: true
     autowire: true
+    arguments:
+      $container: '@service_container'
     tags:
       - { name: kernel.event_listener, event: kernel.controller, method: onKernelController}
