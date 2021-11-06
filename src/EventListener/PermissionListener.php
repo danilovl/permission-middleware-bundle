@@ -12,8 +12,10 @@ use DateTime;
 use ReflectionClass;
 use ReflectionObject;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\{
+    RequestStack,
+    RedirectResponse
+};
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\RouterInterface;
@@ -29,7 +31,7 @@ class PermissionListener
         protected Security $security,
         protected RouterInterface $router,
         protected TranslatorInterface $translator,
-        protected SessionInterface $session,
+        protected RequestStack $requestStack,
         protected ContainerInterface $container
     ) {
     }
@@ -201,10 +203,12 @@ class PermissionListener
         }
 
         $trans = $flashPermissionModel->trans->getArguments();
-        $this->session->getFlashBag()->add(
-            $flashPermissionModel->type,
-            $this->translator->trans(...$trans)
-        );
+        $this->requestStack->getSession()
+            ->getFlashBag()
+            ->add(
+                $flashPermissionModel->type,
+                $this->translator->trans(...$trans)
+            );
     }
 
     protected function setControllerRedirectResponse(RedirectPermissionModel $redirectPermissionModel): void
