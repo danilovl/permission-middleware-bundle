@@ -6,7 +6,7 @@ use Danilovl\PermissionMiddlewareBundle\EventListener\PermissionListener;
 
 return static function (ContainerConfigurator $container): void {
     $container->services()
-        ->set('danilovl.listener.permission_middleware', PermissionListener::class)
+        ->set(PermissionListener::class, PermissionListener::class)
         ->autowire()
         ->arg('$container', service('service_container'))
         ->public()

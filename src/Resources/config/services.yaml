@@ -1,6 +1,5 @@
 services:
-  danilovl.listener.permission_middleware:
-    class: Danilovl\PermissionMiddlewareBundle\EventListener\PermissionListener
+  Danilovl\PermissionMiddlewareBundle\EventListener\PermissionListener:
     public: true
     autowire: true
     arguments:
