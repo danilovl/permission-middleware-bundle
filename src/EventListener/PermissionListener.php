@@ -28,11 +28,11 @@ class PermissionListener
     protected ControllerEvent $controllerEvent;
 
     public function __construct(
-        protected Security $security,
-        protected RouterInterface $router,
-        protected TranslatorInterface $translator,
-        protected RequestStack $requestStack,
-        protected ContainerInterface $container
+        private readonly Security $security,
+        private readonly RouterInterface $router,
+        private readonly TranslatorInterface $translator,
+        private readonly RequestStack $requestStack,
+        private readonly ContainerInterface $container
     ) {
     }
 
