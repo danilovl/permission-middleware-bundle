@@ -3,6 +3,7 @@
 namespace App\Tests\Attribute;
 
 use Danilovl\PermissionMiddlewareBundle\Attribute\PermissionMiddleware;
+use Danilovl\PermissionMiddlewareBundle\Exception\InvalidArgumentException;
 use Danilovl\PermissionMiddlewareBundle\Model\{
     UserPermissionModel,
     ClassPermissionModel,
@@ -41,23 +42,40 @@ class PermissionMiddlewareTest extends TestCase
         $this->assertEquals($model, $attributeOptionModel);
     }
 
+    /**
+     * @dataProvider checkArgumentsProvider
+     */
+    public function testCheckArguments(object $object, string $method): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->getAttribute($object, $method);
+    }
+
     public function attributeInstanceProvider(): Generator
     {
         yield
         [
             new class {
-                #[PermissionMiddleware([
-                    'service' => [
+                #[PermissionMiddleware(
+                    service: [
                         'name' => 'app.middleware.create_article',
                         'method' => 'handle'
                     ]
-                ])]
-                public function show(): void
-                {
-                }
+                )]
+                public function show(): void {}
             },
             'show'
         ];
+    }
+
+    private function getAttribute(object $object, string $method): ?PermissionMiddleware
+    {
+        $attributes = (new ReflectionClass($object))
+            ->getMethod($method)
+            ->getAttributes(PermissionMiddleware::class);
+
+        return $attributes[0]?->newInstance();
     }
 
     public function separateOptionsProvider(): Generator
@@ -65,15 +83,13 @@ class PermissionMiddlewareTest extends TestCase
         yield
         [
             new class {
-                #[PermissionMiddleware([
-                    'service' => [
+                #[PermissionMiddleware(
+                    service: [
                         'name' => 'app.middleware.create_article',
                         'method' => 'handle'
                     ]
-                ])]
-                public function show(): void
-                {
-                }
+                )]
+                public function show(): void {}
             },
             'show',
             'service',
@@ -86,15 +102,13 @@ class PermissionMiddlewareTest extends TestCase
         yield
         [
             new class {
-                #[PermissionMiddleware([
-                    'class' => [
+                #[PermissionMiddleware(
+                    class: [
                         'name' => 'App\Middleware\ShowCalendarMiddleware',
                         'method' => 'handle'
                     ]
-                ])]
-                public function show(): void
-                {
-                }
+                )]
+                public function show(): void {}
             },
             'show',
             'class',
@@ -107,17 +121,15 @@ class PermissionMiddlewareTest extends TestCase
         yield
         [
             new class {
-                #[PermissionMiddleware([
-                    'user' => [
+                #[PermissionMiddleware(
+                    user: [
                         'userNames' => ['admin', 'editor', 'publisher'],
                         'exceptionMessage' => [
                             'message' => 'app.permission_denied'
                         ]
                     ]
-                ])]
-                public function show(): void
-                {
-                }
+                )]
+                public function show(): void {}
             },
             'show',
             'user',
@@ -132,18 +144,16 @@ class PermissionMiddlewareTest extends TestCase
         yield
         [
             new class {
-                #[PermissionMiddleware([
-                    'user' => [
+                #[PermissionMiddleware(
+                    user: [
                         'roles' => ['ROLE_ADMIN'],
                         'userNames' => ['admin'],
                         'redirect' => [
                             'route' => 'login'
                         ]
                     ]
-                ])]
-                public function show(): void
-                {
-                }
+                )]
+                public function show(): void {}
             },
             'show',
             'user',
@@ -159,8 +169,8 @@ class PermissionMiddlewareTest extends TestCase
         yield
         [
             new class {
-                #[PermissionMiddleware([
-                    'redirect' => [
+                #[PermissionMiddleware(
+                    redirect: [
                         'route' => 'homepage',
                         'flash' => [
                             'type' => 'success',
@@ -169,10 +179,8 @@ class PermissionMiddlewareTest extends TestCase
                             ]
                         ]
                     ]
-                ])]
-                public function show(): void
-                {
-                }
+                )]
+                public function show(): void {}
             },
             'show',
             'redirect',
@@ -190,8 +198,8 @@ class PermissionMiddlewareTest extends TestCase
         yield
         [
             new class {
-                #[PermissionMiddleware([
-                    'date' => [
+                #[PermissionMiddleware(
+                    date: [
                         'from' => '01-01-2021',
                         'redirect' => [
                             'route' => 'new_news',
@@ -206,10 +214,8 @@ class PermissionMiddlewareTest extends TestCase
                             ]
                         ]
                     ]
-                ])]
-                public function show(): void
-                {
-                }
+                )]
+                public function show(): void {}
             },
             'show',
             'date',
@@ -231,12 +237,39 @@ class PermissionMiddlewareTest extends TestCase
         ];
     }
 
-    private function getAttribute(object $object, string $method): ?PermissionMiddleware
+    public function checkArgumentsProvider(): Generator
     {
-        $attributes = (new ReflectionClass($object))
-            ->getMethod($method)
-            ->getAttributes(PermissionMiddleware::class);
+        yield
+        [
+            new class {
+                #[PermissionMiddleware(
+                    redirect: [],
+                    service: [
+                        'name' => 'app.middleware.create_article',
+                        'method' => 'handle'
+                    ]
+                )]
+                public function show(): void {}
+            },
+            'show'
+        ];
 
-        return $attributes[0]?->newInstance();
+        yield
+        [
+            new class {
+                #[PermissionMiddleware(
+                    user: [
+                        'roles' => ['ROLE_USER']
+                    ],
+                    redirect: [],
+                    service: [
+                        'name' => 'app.middleware.create_article',
+                        'method' => 'handle'
+                    ]
+                )]
+                public function show(): void {}
+            },
+            'show'
+        ];
     }
 }

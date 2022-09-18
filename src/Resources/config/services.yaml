@@ -5,4 +5,4 @@ services:
     arguments:
       $container: '@service_container'
     tags:
-      - { name: kernel.event_listener, event: kernel.controller, method: onKernelController}
+      - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }

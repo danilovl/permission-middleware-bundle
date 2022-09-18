@@ -28,13 +28,12 @@ class PermissionListener
     protected ControllerEvent $controllerEvent;
 
     public function __construct(
-        private readonly Security $security,
-        private readonly RouterInterface $router,
-        private readonly TranslatorInterface $translator,
-        private readonly RequestStack $requestStack,
-        private readonly ContainerInterface $container
-    ) {
-    }
+        protected readonly Security $security,
+        protected readonly RouterInterface $router,
+        protected readonly TranslatorInterface $translator,
+        protected readonly RequestStack $requestStack,
+        protected readonly ContainerInterface $container
+    ) {}
 
     public function onKernelController(ControllerEvent $event): void
     {
@@ -137,7 +136,7 @@ class PermissionListener
         }
 
         $userNames = $permissionMiddleware->user->userNames;
-        if ($userNames !== null && !in_array($user->getUsername(), $userNames, true)) {
+        if ($userNames !== null && !in_array($user->getUserIdentifier(), $userNames, true)) {
             return false;
         }
 
@@ -148,14 +147,14 @@ class PermissionListener
     {
         $dateFrom = $permissionMiddleware->date->from;
         if ($dateFrom !== null) {
-            if (new DateTime < $dateFrom) {
+            if ((new DateTime)->getTimestamp() < $dateFrom->getTimestamp()) {
                 return false;
             }
         }
 
         $dateTo = $permissionMiddleware->date->to;
         if ($dateTo !== null) {
-            if (new DateTime > $dateTo) {
+            if ((new DateTime)->getTimestamp() > $dateTo->getTimestamp()) {
                 return false;
             }
         }
@@ -202,12 +201,12 @@ class PermissionListener
             return;
         }
 
-        $trans = $flashPermissionModel->trans->getArguments();
+        $transArguments = $flashPermissionModel->trans->getArguments();
         $this->requestStack->getSession()
             ->getFlashBag()
             ->add(
                 $flashPermissionModel->type,
-                $this->translator->trans(...$trans)
+                $this->translator->trans(...$transArguments)
             );
     }
 
@@ -231,6 +230,8 @@ class PermissionListener
             return '';
         }
 
-        return $this->translator->trans(...$transPermissionModel->getArguments());
+        $transArguments = $transPermissionModel->getArguments();
+
+        return $this->translator->trans(...$transArguments);
     }
 }

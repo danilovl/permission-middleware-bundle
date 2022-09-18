@@ -9,15 +9,15 @@
 
 Symfony bundle provides simple mechanism control permission for class or his method.
 
-### Requirements 
+### Requirements
 
-  * PHP 8.1.0 or higher
-  * Symfony 6.0 or higher
+* PHP 8.1.0 or higher
+* Symfony 6.0 or higher
 
 ### 1. Installation
 
 Install `danilovl/permission-middleware-bundle` package by Composer:
- 
+
 ``` bash
 $ composer require danilovl/permission-middleware-bundle
 ```
@@ -169,8 +169,8 @@ use Symfony\Component\HttpFoundation\{
     Response
 };
 
-#[PermissionMiddleware([
-    'user' => [
+#[PermissionMiddleware(
+    user: [
         'roles' => ['ROLE_SUPERVISOR'],
         'userNames' => ['admin'],
         'exceptionMessage' => [
@@ -186,7 +186,7 @@ use Symfony\Component\HttpFoundation\{
             ]
         ]
     ],
-    'date' => [
+    date: [
         'from' => '01-01-2021',
         'exceptionMessage' => [
             'message' => 'app.permission_date_error_message'
@@ -201,7 +201,7 @@ use Symfony\Component\HttpFoundation\{
             ]
         ]
     ],
-    'redirect' => [
+    redirect: [
         'route' => 'profile_show',
         'flash' => [
             'type' => 'warning',
@@ -210,7 +210,7 @@ use Symfony\Component\HttpFoundation\{
             ]
         ]
     ],
-   'class' => [
+    class: [
         'name' => 'App\Middleware\HomeControllerMiddleware',
         'method' => 'handle',
         'exceptionMessage' => [
@@ -226,15 +226,15 @@ use Symfony\Component\HttpFoundation\{
             ]
         ]
     ],   
-    'service' => [
-        'name' => 'app.middleware.home_controller',
-        'method' => 'handle',
+    service: [
+       'name' => 'app.middleware.home_controller',
+       'method' => 'handle',
     ]
-])]
+)]
 class HomeController extends AbstractController
 {
-    #[PermissionMiddleware([
-        'user' => [
+    #[PermissionMiddleware(
+        user: [
             'roles' => ['ROLE_SUPERVISOR'],
             'userNames' => ['admin'],
             'exceptionMessage' => [
@@ -250,7 +250,7 @@ class HomeController extends AbstractController
                 ]
             ]
         ],
-        'date' => [
+        date: [
             'from' => '01-01-2021',
             'exceptionMessage' => [
                 'message' => 'app.permission_date_error_message'
@@ -265,7 +265,7 @@ class HomeController extends AbstractController
                 ]
             ]
         ],
-        'redirect' => [
+        redirect: [
             'route' => 'profile_show',
             'flash' => [
                 'type' => 'warning',
@@ -274,14 +274,14 @@ class HomeController extends AbstractController
                 ]
             ]
         ]
-    ])]
+    )]
     public function index(Request $request): Response
      {
          return $this->render('home/index.html.twig');
      } 
      
-    #[PermissionMiddleware([
-        'date' => [
+    #[PermissionMiddleware(
+        date: [
             'to' => '31-12-2020',
             'redirect' => [
                 'route' => 'new_news',
@@ -293,14 +293,14 @@ class HomeController extends AbstractController
                 ]
             ]
         ]
-    ])]
+    )]
     public function oldNews(Request $request): Response
     {
         return $this->render('home/news.html.twig');
     }
  
-    #[PermissionMiddleware([
-        'date' => [
+    #[PermissionMiddleware(
+        date: [
             'from' => '01-01-2021',
             'redirect' => [
                 'route' => 'new_news',
@@ -315,14 +315,14 @@ class HomeController extends AbstractController
                 ]
             ]
         ]
-    ])]
+    )]
     public function news(Request $request): Response
     {
         return $this->render('home/news.html.twig');
     }
 
-     #[PermissionMiddleware([
-        'user' => [
+     #[PermissionMiddleware(
+        user: [
             'roles' => ['ROLE_SUPERVISOR'],
             'userNames' => ['admin'],
             'redirect' => [
@@ -335,95 +335,93 @@ class HomeController extends AbstractController
                 ]
             ]
         ]
-    ])]
+    )]
     public function editNews(Request $request): Response
     {
         return $this->render('home/edit_news.html.twig');
     }
 
-   #[PermissionMiddleware([
-        'redirect' => [
+   #[PermissionMiddleware(
+        redirect: [
             'route' => 'homepage'
         ]
-   ])]
+   )]
    public function redirect(Request $request): Response
    {
        return $this->render('home/redirect.html.twig');
    }
 
-   #[PermissionMiddleware([
-        'redirect' => [
-            'route' => 'homepage',
-            'flash' => [
-                'type' => 'success',
-                'trans' => [
-                    'message' => 'app.redirect_success'
-                ]
-            ]
-        ]
-   ])]
+   #[PermissionMiddleware(
+       redirect: [
+           'route' => 'homepage',
+           'flash' => [
+               'type' => 'success',
+               'trans' => [
+                   'message' => 'app.redirect_success'
+               ]
+           ]
+       ]
+   )]
    public function redirectWithFlash(Request $request): Response
    {
        return $this->render('home/redirect.html.twig');
    }
 
-   #[PermissionMiddleware([
-        'user' => [
-            'roles' => ['ROLE_ADMIN'],
-            'userNames' => ['admin'],
-            'redirect' => [
-                'route' => 'login'
-            ]
-        ]
-   ])]
+   #[PermissionMiddleware(
+       user: [
+           'roles' => ['ROLE_ADMIN'],
+           'userNames' => ['admin'],
+           'redirect' => ['route' => 'login']
+       ]
+   )]
    public function admin(Request $request): Response
    {
        return $this->render('home/admin.html.twig');
    }
 
-   #[PermissionMiddleware([
-        'user' => [
-            'userNames' => ['admin', 'editor', 'publisher'],
-            'redirect' => [
-                'route' => 'login'
-            ]
-        ]
-   ])]
+   #[PermissionMiddleware(
+       user: [
+           'userNames' => ['admin', 'editor', 'publisher'],
+           'redirect' => [
+               'route' => 'login'
+           ]
+       ]
+   )]
    public function adminByUsernameRedirect(Request $request): Response
    {
        return $this->render('home/admin.html.twig');
    }
    
-   #[PermissionMiddleware([
-        'user' => [
+   #[PermissionMiddleware(
+        user: [
             'userNames' => ['admin', 'editor', 'publisher'],
             'exceptionMessage' => [
                 'message' => 'app.permission_denied'    
             ]
         ]
-   ])] 
+   )] 
    public function adminByUsernameExceptionMessage(Request $request): Response
    {
        return $this->render('home/admin.html.twig');
    }   
    
-   #[PermissionMiddleware([
-        'class' => [
+   #[PermissionMiddleware(
+        class: [
             'name' => 'App\Middleware\ShowCalendarMiddleware',
             'method' => 'handle'
         ]
-   ])] 
+   )] 
    public function showCalendar(Request $request): Response
    {
        return $this->render('home/admin.html.twig');
    }   
    
-   #[PermissionMiddleware([
-        'service' => [
-            'name' => 'app.middleware.create_article',
-            'method' => 'handle'
-        ]
-   ])] 
+   #[PermissionMiddleware(
+       service: [
+           'name' => 'app.middleware.create_article',
+           'method' => 'handle'
+       ]
+   )] 
    public function createArticle(Request $request): Response
    {
        return $this->render('home/admin.html.twig');
