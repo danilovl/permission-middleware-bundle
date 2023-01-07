@@ -82,7 +82,7 @@ class PermissionListener
                 continue;
             }
 
-            $checkMethod = sprintf('check%s', strtoupper($method));
+            $checkMethod = sprintf('check%s', ucfirst($method));
             $access = $this->{$checkMethod}($permissionMiddleware);
             if ($access === false) {
                 if ($permissionMiddleware->{$method}->accessDeniedHttpException) {
