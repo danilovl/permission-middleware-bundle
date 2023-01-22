@@ -11,8 +11,8 @@ Symfony bundle provides simple mechanism control permission for class or his met
 
 ### Requirements
 
-* PHP 8.1.0 or higher
-* Symfony 6.0 or higher
+* PHP 8.2.0 or higher
+* Symfony 6.2 or higher
 
 ### 1. Installation
 
