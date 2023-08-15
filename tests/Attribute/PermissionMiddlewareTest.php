@@ -4,6 +4,7 @@ namespace App\Tests\Attribute;
 
 use Danilovl\PermissionMiddlewareBundle\Attribute\PermissionMiddleware;
 use Danilovl\PermissionMiddlewareBundle\Exception\InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Danilovl\PermissionMiddlewareBundle\Model\{
     UserPermissionModel,
     ClassPermissionModel,
@@ -17,9 +18,7 @@ use ReflectionClass;
 
 class PermissionMiddlewareTest extends TestCase
 {
-    /**
-     * @dataProvider attributeInstanceProvider
-     */
+    #[DataProvider('attributeInstanceProvider')]
     public function testAttributeInstance(object $object, string $method): void
     {
         $attribute = $this->getAttribute($object, $method);
@@ -27,9 +26,7 @@ class PermissionMiddlewareTest extends TestCase
         $this->assertEquals(PermissionMiddleware::class, get_class($attribute));
     }
 
-    /**
-     * @dataProvider separateOptionsProvider
-     */
+    #[DataProvider('separateOptionsProvider')]
     public function testSeparateOptions(
         object $object,
         string $method,
@@ -42,9 +39,7 @@ class PermissionMiddlewareTest extends TestCase
         $this->assertEquals($model, $attributeOptionModel);
     }
 
-    /**
-     * @dataProvider checkArgumentsProvider
-     */
+    #[DataProvider('checkArgumentsProvider')]
     public function testCheckArguments(object $object, string $method): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -78,7 +73,7 @@ class PermissionMiddlewareTest extends TestCase
         return $attributes[0]?->newInstance();
     }
 
-    public function separateOptionsProvider(): Generator
+    public static function separateOptionsProvider(): Generator
     {
         yield
         [
