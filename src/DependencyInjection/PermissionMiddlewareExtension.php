@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 class PermissionMiddlewareExtension extends Extension
 {
-    private const DIR_CONFIG = '/../Resources/config';
+    private const string DIR_CONFIG = '/../Resources/config';
 
     public function load(array $configs, ContainerBuilder $container): void
     {
