@@ -11,15 +11,16 @@ use Danilovl\PermissionMiddlewareBundle\Model\{
 use DateTime;
 use ReflectionClass;
 use ReflectionObject;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\{
     RequestStack,
-    RedirectResponse
+    RedirectResponse,
+    Session\Session
 };
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PermissionListener
@@ -116,7 +117,7 @@ class PermissionListener
     protected function checkUser(PermissionMiddleware $permissionMiddleware): bool
     {
         $user = $this->security->getUser();
-        if ($user === null) {
+        if ($user === null || $permissionMiddleware->user === null) {
             return false;
         }
 
@@ -145,6 +146,10 @@ class PermissionListener
 
     protected function checkDate(PermissionMiddleware $permissionMiddleware): bool
     {
+        if ($permissionMiddleware->date === null) {
+            return false;
+        }
+
         $dateFrom = $permissionMiddleware->date->from;
         if ($dateFrom !== null) {
             if ((new DateTime)->getTimestamp() < $dateFrom->getTimestamp()) {
@@ -175,24 +180,52 @@ class PermissionListener
 
     protected function checkClass(PermissionMiddleware $permissionMiddleware): bool
     {
+        if ($permissionMiddleware->class === null) {
+            return false;
+        }
+
         $classMiddleware = $permissionMiddleware->class;
         if (!$classMiddleware->canCheck()) {
             return false;
         }
 
-        return call_user_func_array([$classMiddleware->name, $classMiddleware->method], [$this->controllerEvent]);
+        /** @var string $className */
+        $className = $classMiddleware->name;
+        /** @var string $classMethod */
+        $classMethod = $classMiddleware->method;
+
+        /** @var callable $callable */
+        $callable = [$className, $classMethod];
+        /** @var bool $result */
+        $result = call_user_func_array($callable, [$this->controllerEvent]);
+
+        return $result;
     }
 
     protected function checkService(PermissionMiddleware $permissionMiddleware): mixed
     {
+        if ($permissionMiddleware->service === null) {
+            return false;
+        }
+
         $serviceMiddleware = $permissionMiddleware->service;
         if (!$serviceMiddleware->canCheck()) {
             return false;
         }
 
-        $service = $this->container->get($serviceMiddleware->name);
+        /** @var string $serviceName */
+        $serviceName = $serviceMiddleware->name;
+        /** @var string $serviceMethod */
+        $serviceMethod = $serviceMiddleware->method;
 
-        return call_user_func_array([$service, $serviceMiddleware->method], [$this->controllerEvent]);
+        $service = $this->container->get($serviceName);
+
+        /** @var callable $callable */
+        $callable = [$service, $serviceMethod];
+        /** @var bool $result */
+        $result = call_user_func_array($callable, [$this->controllerEvent]);
+
+        return $result;
     }
 
     protected function addFlashBag(FlashPermissionModel $flashPermissionModel): void
@@ -201,13 +234,18 @@ class PermissionListener
             return;
         }
 
+        /** @var string $type */
+        $type = $flashPermissionModel->type;
+
         $transArguments = $flashPermissionModel->trans->getArguments();
-        $this->requestStack->getSession()
-            ->getFlashBag()
-            ->add(
-                $flashPermissionModel->type,
-                $this->translator->trans(...$transArguments)
-            );
+
+        /** @var Session $session */
+        $session = $this->requestStack->getSession();
+
+        $session->getFlashBag()->add(
+            $type,
+            $this->translator->trans(...$transArguments)
+        );
     }
 
     protected function setControllerRedirectResponse(RedirectPermissionModel $redirectPermissionModel): void
@@ -215,8 +253,10 @@ class PermissionListener
         $this->addFlashBag($redirectPermissionModel->flash);
 
         $this->controllerEvent->setController(function () use ($redirectPermissionModel): RedirectResponse {
+            /** @var string $route */
+            $route = $redirectPermissionModel->route;
             $url = $this->router->generate(
-                $redirectPermissionModel->route,
+                $route,
                 $redirectPermissionModel->parameters
             );
 

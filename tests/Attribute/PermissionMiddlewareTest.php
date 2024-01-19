@@ -47,7 +47,7 @@ class PermissionMiddlewareTest extends TestCase
         $this->getAttribute($object, $method);
     }
 
-    public function attributeInstanceProvider(): Generator
+    public static function attributeInstanceProvider(): Generator
     {
         yield
         [
@@ -64,13 +64,16 @@ class PermissionMiddlewareTest extends TestCase
         ];
     }
 
-    private function getAttribute(object $object, string $method): ?PermissionMiddleware
+    private function getAttribute(object $object, string $method): PermissionMiddleware
     {
         $attributes = (new ReflectionClass($object))
             ->getMethod($method)
             ->getAttributes(PermissionMiddleware::class);
 
-        return $attributes[0]?->newInstance();
+        /** @var PermissionMiddleware $attribute */
+        $attribute = $attributes[0]->newInstance();
+
+        return $attribute;
     }
 
     public static function separateOptionsProvider(): Generator
@@ -232,7 +235,7 @@ class PermissionMiddlewareTest extends TestCase
         ];
     }
 
-    public function checkArgumentsProvider(): Generator
+    public static function checkArgumentsProvider(): Generator
     {
         yield
         [
