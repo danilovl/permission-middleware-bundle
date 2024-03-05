@@ -424,6 +424,101 @@ class HomeController extends AbstractController
 }
 ```
 
+### 3. Example `service`, `class` handlers
+
+Simple basic handler.
+
+```php
+<?php declare(strict_types=1);
+
+namespace App\Application\Controller;
+
+class MiddlewareController
+{
+    public function __invoke(): bool
+    {
+        return true;
+    }
+}
+```
+
+Simple handler with `ControllerEvent` parameter. You can change response.
+
+```php
+<?php declare(strict_types=1);
+
+namespace App\Application\Controller;
+
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
+
+class MiddlewareController
+{
+    public function __invoke(ControllerEvent $event): bool
+    {
+        $request = $event->getRequest();
+        if ($request->isXmlHttpRequest()) {
+            return false;
+        }
+
+       $event->setController(static fn(): Response => new Response('Unauthorized', 401));
+
+        return true;
+    }
+}
+```
+Return `JsonResponse`.
+
+```php
+<?php declare(strict_types=1);
+
+namespace App\Application\Controller;
+
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
+
+class MiddlewareController
+{
+    public function __invoke(ControllerEvent $event): bool
+    {
+        $request = $event->getRequest();
+        if ($request->isXmlHttpRequest()) {
+            return false;
+        }
+
+        $event->setController(static fn(): JsonResponse => new JsonResponse('Unauthorized', 401));
+
+        return true;
+    }
+}
+```
+
+Return `RedirectResponse`.
+
+```php
+<?php declare(strict_types=1);
+
+namespace App\Application\Controller;
+
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
+
+class MiddlewareController
+{
+    public function __invoke(ControllerEvent $event): bool
+    {
+        $request = $event->getRequest();
+        if ($request->isXmlHttpRequest()) {
+            return false;
+        }
+
+        $event->setController(static fn(): RedirectResponse => new RedirectResponse('https://www.google.com/', 302));
+
+        return true;
+    }
+}
+```
+
 ## License
 
 The PermissionMiddlewareBundle is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
