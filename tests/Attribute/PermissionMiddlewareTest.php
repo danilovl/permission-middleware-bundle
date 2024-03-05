@@ -205,7 +205,7 @@ class PermissionMiddlewareTest extends TestCase
                                 'type' => 'warning',
                                 'trans' => [
                                     'message' => 'app.new_section_is_open',
-                                    'parameters' => ['date' => '01-01-2021'],
+                                    'messageParameters' => ['date' => '01-01-2021'],
                                     'domain' => 'flashes',
                                     'locale' => 'en'
                                 ]
@@ -225,7 +225,7 @@ class PermissionMiddlewareTest extends TestCase
                         'type' => 'warning',
                         'trans' => [
                             'message' => 'app.new_section_is_open',
-                            'parameters' => ['date' => '01-01-2021'],
+                            'messageParameters' => ['date' => '01-01-2021'],
                             'domain' => 'flashes',
                             'locale' => 'en'
                         ]

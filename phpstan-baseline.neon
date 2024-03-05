@@ -1,0 +1,11 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Readonly property Danilovl\\\\PermissionMiddlewareBundle\\\\Model\\\\DatePermissionModel\\:\\:\\$from is assigned outside of the constructor\\.$#"
+			count: 3
+			path: src/Model/DatePermissionModel.php
+
+		-
+			message: "#^Readonly property Danilovl\\\\PermissionMiddlewareBundle\\\\Model\\\\DatePermissionModel\\:\\:\\$to is assigned outside of the constructor\\.$#"
+			count: 3
+			path: src/Model/DatePermissionModel.php

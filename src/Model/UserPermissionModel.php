@@ -2,31 +2,36 @@
 
 namespace Danilovl\PermissionMiddlewareBundle\Model;
 
+use Danilovl\PermissionMiddlewareBundle\Attribute\RequireModelOption;
 use Danilovl\PermissionMiddlewareBundle\Interfaces\CheckInterface;
+use Danilovl\PermissionMiddlewareBundle\Traits\OptionsCheckTrait;
 
+#[RequireModelOption(optionNames: ['roles', 'userNames'])]
 class UserPermissionModel implements CheckInterface
 {
-    public ?array $roles = null;
-    public ?array $userNames = null;
-    public TransPermissionModel $exceptionMessage;
-    public RedirectPermissionModel $redirect;
-    public bool $accessDeniedHttpException = true;
+    use OptionsCheckTrait;
 
-    public function __construct(?array $options)
+    public readonly ?array $roles;
+    public readonly ?array $userNames;
+    public readonly ?TransPermissionModel $exceptionMessage;
+    public readonly ?RedirectPermissionModel $redirect;
+
+    public function __construct(array $options)
     {
-        if (empty($options)) {
-            return;
-        }
+        $this->checkOptions($options);
 
-        $this->roles = !empty($options['roles']) ? $options['roles'] : null;
-        $this->userNames = !empty($options['userNames']) ? $options['userNames'] : [];
-        $this->exceptionMessage = new TransPermissionModel($options['exceptionMessage'] ?? null);
-        $this->redirect = new RedirectPermissionModel($options['redirect'] ?? null);
-        $this->accessDeniedHttpException = (bool) ($options['accessDeniedHttpException'] ?? true);
+        $exceptionMessage = $options['exceptionMessage'] ?? null;
+        $redirect = $options['redirect'] ?? null;
+
+        $this->roles = $options['roles'] ?? null;
+        $this->userNames = $options['userNames'] ?? null;
+        $this->exceptionMessage = $exceptionMessage !== null ? new TransPermissionModel($exceptionMessage) : null;
+        $this->redirect = $redirect !== null ? new RedirectPermissionModel($redirect) : null;
     }
 
-    public function canCheck(): bool
+    public function checkOptions(array $options): void
     {
-        return $this->roles !== null || $this->userNames !== null;
+        $this->checkOptionsNames($options);
+        $this->checkRequiredOptions($options);
     }
 }

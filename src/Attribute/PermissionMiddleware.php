@@ -12,14 +12,14 @@ use Danilovl\PermissionMiddlewareBundle\Model\{
     RedirectPermissionModel
 };
 
-#[Attribute]
+#[Attribute(Attribute::IS_REPEATABLE | Attribute::TARGET_ALL)]
 class PermissionMiddleware
 {
-    public ?UserPermissionModel $user;
-    public ?DatePermissionModel $date;
-    public ?RedirectPermissionModel $redirect;
-    public ?ClassPermissionModel $class;
-    public ?ServicePermissionModel $service;
+    public readonly ?UserPermissionModel $user;
+    public readonly ?DatePermissionModel $date;
+    public readonly ?RedirectPermissionModel $redirect;
+    public readonly ?ClassPermissionModel $class;
+    public readonly ?ServicePermissionModel $service;
 
     public function __construct(
         array $user = null,

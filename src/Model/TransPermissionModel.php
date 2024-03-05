@@ -2,34 +2,32 @@
 
 namespace Danilovl\PermissionMiddlewareBundle\Model;
 
+use Danilovl\PermissionMiddlewareBundle\Attribute\RequireModelOption;
 use Danilovl\PermissionMiddlewareBundle\Interfaces\CheckInterface;
+use Danilovl\PermissionMiddlewareBundle\Traits\OptionsCheckTrait;
 
+#[RequireModelOption(['message'])]
 class TransPermissionModel implements CheckInterface
 {
-    public ?string $message = null;
-    public array $messageParameters = [];
-    public ?string $domain = null;
-    public ?string $locale = null;
+    use OptionsCheckTrait;
 
-    public function __construct(?array $options)
+    public readonly string $message;
+    public readonly array $messageParameters;
+    public readonly ?string $domain;
+    public readonly ?string $locale;
+
+    public function __construct(array $options)
     {
-        if (empty($options)) {
-            return;
-        }
+        $this->checkOptions($options);
 
-        $this->message = !empty($options['message']) ? $options['message'] : null;
-        $this->messageParameters = !empty($options['messageParameters']) ? $options['messageParameters'] : [];
+        $this->message = $options['message'];
+        $this->messageParameters = $options['messageParameters'] ?? [];
         $this->domain = !empty($options['domain']) ? $options['domain'] : null;
         $this->locale = !empty($options['locale']) ? $options['locale'] : null;
     }
 
     public function getArguments(): array
     {
-        $data = [];
-        if ($this->message === null) {
-            return $data;
-        }
-
         $data = [$this->message, $this->messageParameters];
         if ($this->domain !== null && $this->locale !== null) {
             $data = array_merge($data, [$this->domain, $this->locale]);
@@ -38,8 +36,9 @@ class TransPermissionModel implements CheckInterface
         return $data;
     }
 
-    public function canCheck(): bool
+    public function checkOptions(array $options): void
     {
-        return $this->message !== null;
+        $this->checkOptionsNames($options);
+        $this->checkRequiredOptions($options);
     }
 }

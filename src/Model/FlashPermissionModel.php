@@ -2,25 +2,29 @@
 
 namespace Danilovl\PermissionMiddlewareBundle\Model;
 
+use Danilovl\PermissionMiddlewareBundle\Attribute\RequireModelOption;
 use Danilovl\PermissionMiddlewareBundle\Interfaces\CheckInterface;
+use Danilovl\PermissionMiddlewareBundle\Traits\OptionsCheckTrait;
 
+#[RequireModelOption(['type' , 'trans'])]
 class FlashPermissionModel implements CheckInterface
 {
-    public ?string $type = null;
-    public TransPermissionModel $trans;
+    use OptionsCheckTrait;
 
-    public function __construct(?array $options)
+    public readonly string $type;
+    public readonly TransPermissionModel $trans;
+
+    public function __construct(array $options)
     {
-        if (empty($options)) {
-            return;
-        }
+        $this->checkOptions($options);
 
-        $this->type = !empty($options['type']) ? $options['type'] : null;
-        $this->trans = new TransPermissionModel($options['trans'] ?? null);
+        $this->type = $options['type'];
+        $this->trans = new TransPermissionModel($options['trans']);
     }
 
-    public function canCheck(): bool
+    public function checkOptions(array $options): void
     {
-        return $this->type !== null;
+        $this->checkOptionsNames($options);
+        $this->checkRequiredOptions($options);
     }
 }

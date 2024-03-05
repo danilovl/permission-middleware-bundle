@@ -2,27 +2,33 @@
 
 namespace Danilovl\PermissionMiddlewareBundle\Model;
 
+use Danilovl\PermissionMiddlewareBundle\Attribute\RequireModelOption;
 use Danilovl\PermissionMiddlewareBundle\Interfaces\CheckInterface;
+use Danilovl\PermissionMiddlewareBundle\Traits\OptionsCheckTrait;
 
+#[RequireModelOption(['route'])]
 class RedirectPermissionModel implements CheckInterface
 {
-    public ?string $route = null;
-    public array $parameters = [];
-    public FlashPermissionModel $flash;
+    use OptionsCheckTrait;
 
-    public function __construct(?array $options)
+    public readonly string $route;
+    public readonly array $parameters;
+    public readonly ?FlashPermissionModel $flash;
+
+    public function __construct(array $options)
     {
-        if (empty($options)) {
-            return;
-        }
+        $this->checkOptions($options);
 
-        $this->route = !empty($options['route']) ? $options['route'] : null;
-        $this->parameters = !empty($options['parameters']) ? $options['parameters'] : [];
-        $this->flash = new FlashPermissionModel($options['flash'] ?? null);
+        $flash = $options['flash'] ?? null;
+
+        $this->route = $options['route'];
+        $this->parameters = $options['parameters'] ?? [];
+        $this->flash = $flash !== null ? new FlashPermissionModel($flash) : null;
     }
 
-    public function canCheck(): bool
+    public function checkOptions(array $options): void
     {
-        return $this->route !== null;
+        $this->checkOptionsNames($options);
+        $this->checkRequiredOptions($options);
     }
 }

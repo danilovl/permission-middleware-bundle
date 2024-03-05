@@ -79,19 +79,18 @@ class PermissionListener
         }
 
         foreach (['user', 'date', 'class', 'service'] as $method) {
-            if ($permissionMiddleware->{$method} === null) {
+            $permission = $permissionMiddleware->{$method};
+            if ($permission === null) {
                 continue;
             }
 
             $checkMethod = sprintf('check%s', ucfirst($method));
             $access = $this->{$checkMethod}($permissionMiddleware);
             if ($access === false) {
-                if ($permissionMiddleware->{$method}->accessDeniedHttpException) {
-                    $this->createResponse(
-                        $permissionMiddleware->{$method}->redirect,
-                        $permissionMiddleware->{$method}->exceptionMessage
-                    );
-                }
+                $this->createResponse(
+                    $permission->redirect,
+                    $permission->exceptionMessage
+                );
 
                 return false;
             }
@@ -101,17 +100,19 @@ class PermissionListener
     }
 
     protected function createResponse(
-        RedirectPermissionModel $redirect,
-        TransPermissionModel $trans
+        ?RedirectPermissionModel $redirect,
+        ?TransPermissionModel $trans
     ): void {
-        if ($redirect->route !== null) {
+        if ($redirect !== null) {
             $this->addFlashBag($redirect->flash);
             $this->setControllerRedirectResponse($redirect);
 
             return;
         }
 
-        throw new AccessDeniedHttpException($this->getExceptionMessage($trans));
+        $message = $trans ? $this->getExceptionMessage($trans) : '';
+
+        throw new AccessDeniedHttpException($message);
     }
 
     protected function checkUser(PermissionMiddleware $permissionMiddleware): bool
@@ -169,7 +170,7 @@ class PermissionListener
 
     protected function checkRedirect(PermissionMiddleware $permissionMiddleware): bool
     {
-        if ($permissionMiddleware->redirect === null || !$permissionMiddleware->redirect->canCheck()) {
+        if ($permissionMiddleware->redirect === null) {
             return false;
         }
 
@@ -180,12 +181,8 @@ class PermissionListener
 
     protected function checkClass(PermissionMiddleware $permissionMiddleware): bool
     {
-        if ($permissionMiddleware->class === null) {
-            return false;
-        }
-
         $classMiddleware = $permissionMiddleware->class;
-        if (!$classMiddleware->canCheck()) {
+        if ($classMiddleware === null) {
             return false;
         }
 
@@ -202,14 +199,10 @@ class PermissionListener
         return $result;
     }
 
-    protected function checkService(PermissionMiddleware $permissionMiddleware): mixed
+    protected function checkService(PermissionMiddleware $permissionMiddleware): bool
     {
-        if ($permissionMiddleware->service === null) {
-            return false;
-        }
-
         $serviceMiddleware = $permissionMiddleware->service;
-        if (!$serviceMiddleware->canCheck()) {
+        if ($serviceMiddleware === null) {
             return false;
         }
 
@@ -228,13 +221,12 @@ class PermissionListener
         return $result;
     }
 
-    protected function addFlashBag(FlashPermissionModel $flashPermissionModel): void
+    protected function addFlashBag(?FlashPermissionModel $flashPermissionModel): void
     {
-        if (!$flashPermissionModel->canCheck()) {
+        if ($flashPermissionModel === null) {
             return;
         }
 
-        /** @var string $type */
         $type = $flashPermissionModel->type;
 
         $transArguments = $flashPermissionModel->trans->getArguments();
@@ -266,10 +258,6 @@ class PermissionListener
 
     protected function getExceptionMessage(TransPermissionModel $transPermissionModel): string
     {
-        if (!$transPermissionModel->canCheck()) {
-            return '';
-        }
-
         $transArguments = $transPermissionModel->getArguments();
 
         return $this->translator->trans(...$transArguments);

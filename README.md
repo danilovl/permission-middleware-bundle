@@ -44,7 +44,6 @@ $configurationTree = [
     'user' => [
         'roles',
         'userNames',
-        'accessDeniedHttpException',
         'exceptionMessage' => [
             'message',
             'messageParameters',
@@ -68,7 +67,6 @@ $configurationTree = [
     'date' => [
         'from',
         'to',
-        'accessDeniedHttpException',
         'exceptionMessage' => [
             'message',
             'messageParameters',
@@ -92,7 +90,6 @@ $configurationTree = [
     'redirect' => [
         'route',
         'parameters',
-        'accessDeniedHttpException',
         'flash' => [
             'type',
             'trans' => [
@@ -106,7 +103,6 @@ $configurationTree = [
     'class' => [
         'name',
         'method',
-        'accessDeniedHttpException',
         'exceptionMessage' => [
             'message',
             'messageParameters',
@@ -130,7 +126,6 @@ $configurationTree = [
     'service' => [
         'name',
         'method',
-        'accessDeniedHttpException',
         'exceptionMessage' => [
             'message',
             'messageParameters',

@@ -2,31 +2,36 @@
 
 namespace Danilovl\PermissionMiddlewareBundle\Model;
 
+use Danilovl\PermissionMiddlewareBundle\Attribute\RequireModelOption;
 use Danilovl\PermissionMiddlewareBundle\Interfaces\CheckInterface;
+use Danilovl\PermissionMiddlewareBundle\Traits\OptionsCheckTrait;
 
+#[RequireModelOption(['name'])]
 class ServicePermissionModel implements CheckInterface
 {
-    public ?string $name = null;
-    public ?string $method = null;
-    public TransPermissionModel $exceptionMessage;
-    public RedirectPermissionModel $redirect;
-    public bool $accessDeniedHttpException = true;
+    use OptionsCheckTrait;
 
-    public function __construct(?array $options)
+    public readonly string $name;
+    public readonly string $method;
+    public readonly ?TransPermissionModel $exceptionMessage;
+    public readonly ?RedirectPermissionModel $redirect;
+
+    public function __construct(array $options)
     {
-        if (empty($options)) {
-            return;
-        }
+        $this->checkOptions($options);
 
-        $this->name = !empty($options['name']) ? $options['name'] : null;
-        $this->method = !empty($options['method']) ? $options['method'] : null;
-        $this->exceptionMessage = new TransPermissionModel($options['exceptionMessage'] ?? null);
-        $this->redirect = new RedirectPermissionModel($options['redirect'] ?? null);
-        $this->accessDeniedHttpException = (bool) ($options['accessDeniedHttpException'] ?? true);
+        $exceptionMessage = $options['exceptionMessage'] ?? null;
+        $redirect = $options['redirect'] ?? null;
+
+        $this->name = $options['name'];
+        $this->method = !empty($options['method']) ? $options['method'] : '__invoke';
+        $this->exceptionMessage = $exceptionMessage !== null ? new TransPermissionModel($exceptionMessage) : null;
+        $this->redirect = $redirect !== null ? new RedirectPermissionModel($redirect) : null;
     }
 
-    public function canCheck(): bool
+    public function checkOptions(array $options): void
     {
-        return $this->name !== null && $this->method !== null;
+        $this->checkOptionsNames($options);
+        $this->checkRequiredOptions($options);
     }
 }

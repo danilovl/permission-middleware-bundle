@@ -4,5 +4,5 @@ namespace Danilovl\PermissionMiddlewareBundle\Interfaces;
 
 interface CheckInterface
 {
-    public function canCheck(): bool;
+    public function checkOptions(array $options): void;
 }
