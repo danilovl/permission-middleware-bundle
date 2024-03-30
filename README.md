@@ -19,7 +19,7 @@ Symfony bundle provides simple mechanism control permission for class or his met
 Install `danilovl/permission-middleware-bundle` package by Composer:
 
 ``` bash
-$ composer require danilovl/permission-middleware-bundle
+composer require danilovl/permission-middleware-bundle
 ```
 Add the `PermissionMiddlewareBundle` to your application's bundles if does not add automatically:
 
