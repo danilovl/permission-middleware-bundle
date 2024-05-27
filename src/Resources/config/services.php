@@ -2,14 +2,25 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use Danilovl\PermissionMiddlewareBundle\EventListener\PermissionListener;
+use Danilovl\PermissionMiddlewareBundle\EventListener\{
+    ResponseListener,
+    ControllerListener
+};
 
 return static function (ContainerConfigurator $container): void {
     $container->services()
-        ->set(PermissionListener::class, PermissionListener::class)
-        ->autowire()
-        ->arg('$container', service('service_container'))
+        ->set(ControllerListener::class, ControllerListener::class)
         ->public()
-        ->tag('kernel.event_listener', ['event' => 'kernel.controller', 'method' => 'onKernelController'])
-        ->alias(PermissionListener::class, 'danilovl.listener.permission_middleware');
+        ->autowire()
+        ->autoconfigure()
+        ->arg('$container', service('service_container'))
+        ->arg('$environment', env('kernel.environment'));
+
+    $container->services()
+        ->set(ResponseListener::class, ResponseListener::class)
+        ->public()
+        ->autowire()
+        ->autoconfigure()
+        ->arg('$container', service('service_container'))
+        ->arg('$environment', env('kernel.environment'));
 };

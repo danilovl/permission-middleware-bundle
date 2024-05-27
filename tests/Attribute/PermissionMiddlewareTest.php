@@ -40,9 +40,10 @@ class PermissionMiddlewareTest extends TestCase
     }
 
     #[DataProvider('checkArgumentsProvider')]
-    public function testCheckArguments(object $object, string $method): void
+    public function testCheckArguments(object $object, string $method, string $errorMessage): void
     {
         $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($errorMessage);
 
         $this->getAttribute($object, $method);
     }
@@ -249,7 +250,8 @@ class PermissionMiddlewareTest extends TestCase
                 )]
                 public function show(): void {}
             },
-            'show'
+            'show',
+            'Argument "redirect" is not null but empty.'
         ];
 
         yield
@@ -267,7 +269,49 @@ class PermissionMiddlewareTest extends TestCase
                 )]
                 public function show(): void {}
             },
-            'show'
+            'show',
+            'Argument "redirect" is not null but empty.'
+        ];
+
+        yield
+        [
+            new class {
+                #[PermissionMiddleware(
+                    user: [
+                        'roles' => ['ROLE_USER']
+                    ],
+                    afterResponse: true
+                )]
+                public function show(): void {}
+            },
+            'show',
+            'Argument "user" must be empty if afterResponse is true.'
+        ];
+
+        yield
+        [
+            new class {
+                #[PermissionMiddleware(
+                    redirect: [],
+                    afterResponse: true
+                )]
+                public function show(): void {}
+            },
+            'show',
+            'Argument "redirect" must be empty if afterResponse is true.'
+        ];
+
+        yield
+        [
+            new class {
+                #[PermissionMiddleware(
+                    date: [],
+                    afterResponse: true
+                )]
+                public function show(): void {}
+            },
+            'show',
+            'Argument "date" must be empty if afterResponse is true.'
         ];
     }
 }

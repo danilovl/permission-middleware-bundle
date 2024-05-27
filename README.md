@@ -146,6 +146,8 @@ $configurationTree = [
             ]
         ]
     ],
+    'environment',
+    'afterResponse'
 ];
 ```
 
@@ -418,6 +420,31 @@ class HomeController extends AbstractController
        ]
    )] 
    public function createArticle(Request $request): Response
+   {
+       return $this->render('home/admin.html.twig');
+   }   
+
+   #[PermissionMiddleware(
+       service: [
+           'name' => 'app.middleware.create_article',
+           'method' => 'handle'
+       ],
+       environment: ['dev']
+   )] 
+   public function createArticleOnyForDev(Request $request): Response
+   {
+       return $this->render('home/admin.html.twig');
+   }
+   
+   #[PermissionMiddleware(
+       service: [
+           'name' => 'app.middleware.create_article',
+           'method' => 'handle'
+       ],
+       environment: ['dev'],
+       afterResponse: true
+   )] 
+   public function createArticleResponse(Request $request): Response
    {
        return $this->render('home/admin.html.twig');
    }

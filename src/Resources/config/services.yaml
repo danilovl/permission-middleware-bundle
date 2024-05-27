@@ -1,8 +1,15 @@
 services:
-  Danilovl\PermissionMiddlewareBundle\EventListener\PermissionListener:
-    public: true
+  _defaults:
     autowire: true
+    autoconfigure: true
+    public: true
+
+  Danilovl\PermissionMiddlewareBundle\EventListener\ControllerListener:
     arguments:
       $container: '@service_container'
-    tags:
-      - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }
+      $environment: '%kernel.environment%'
+
+  Danilovl\PermissionMiddlewareBundle\EventListener\ResponseListener:
+    arguments:
+      $container: '@service_container'
+      $environment: '%kernel.environment%'

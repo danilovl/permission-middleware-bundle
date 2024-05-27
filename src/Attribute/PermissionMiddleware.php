@@ -26,7 +26,9 @@ class PermissionMiddleware
         array $date = null,
         array $redirect = null,
         array $class = null,
-        array $service = null
+        array $service = null,
+        public readonly ?array $environment = null,
+        public readonly bool $afterResponse = false
     ) {
         $this->checkArguments(get_defined_vars());
 
@@ -39,6 +41,21 @@ class PermissionMiddleware
 
     private function checkArguments(array $arguments): void
     {
+        $ignoredArguments = ['afterResponse', 'environment'];
+        $arguments = array_diff_key($arguments, array_flip($ignoredArguments));
+
+        if ($this->afterResponse) {
+            foreach ($arguments as $argumentName => $argumentValue) {
+                if (!in_array($argumentName, ['user', 'date', 'redirect'], true)) {
+                    continue;
+                }
+
+                if ($argumentValue !== null) {
+                    throw new InvalidArgumentException(sprintf('Argument "%s" must be empty if afterResponse is true.', $argumentName));
+                }
+            }
+        }
+
         foreach ($arguments as $argumentName => $argumentValue) {
             if ($argumentValue !== null && empty($argumentValue)) {
                 throw new InvalidArgumentException(sprintf('Argument "%s" is not null but empty.', $argumentName));

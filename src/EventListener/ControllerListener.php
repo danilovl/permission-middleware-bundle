@@ -10,7 +10,7 @@ use Danilovl\PermissionMiddlewareBundle\Model\{
 };
 use DateTime;
 use ReflectionClass;
-use ReflectionObject;
+use ReflectionException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\{
@@ -18,12 +18,14 @@ use Symfony\Component\HttpFoundation\{
     RedirectResponse,
     Session\Session
 };
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class PermissionListener
+class ControllerListener implements EventSubscriberInterface
 {
     protected bool $checkPermissionMethod = true;
     protected ControllerEvent $controllerEvent;
@@ -33,13 +35,27 @@ class PermissionListener
         protected readonly RouterInterface $router,
         protected readonly TranslatorInterface $translator,
         protected readonly RequestStack $requestStack,
-        protected readonly ContainerInterface $container
+        protected readonly ContainerInterface $container,
+        protected readonly string $environment
     ) {}
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            KernelEvents::CONTROLLER => 'onKernelController'
+        ];
+    }
 
     public function onKernelController(ControllerEvent $event): void
     {
         $controller = $event->getController();
-        if (!is_array($controller)) {
+        if (!is_array($controller) || count($controller) !== 2) {
+            return;
+        }
+
+        try {
+            new ReflectionClass($controller[0] ?? '');
+        } catch (ReflectionException) {
             return;
         }
 
@@ -57,7 +73,18 @@ class PermissionListener
 
         $attributes = (new ReflectionClass($controller))->getAttributes(PermissionMiddleware::class);
         foreach ($attributes as $attribute) {
-            $this->checkPermissionMethod = !($this->checkPermissionMethod === false) && $this->checkPermissions($attribute->newInstance());
+            /** @var PermissionMiddleware $attributeInstance */
+            $attributeInstance = $attribute->newInstance();
+            if ($attributeInstance->afterResponse) {
+                continue;
+            }
+
+            $environments = $attributeInstance->environment;
+            if ($environments !== null && !in_array($this->environment, $environments)) {
+                continue;
+            }
+
+            $this->checkPermissionMethod = !($this->checkPermissionMethod === false) && $this->checkPermissions($attributeInstance);
         }
     }
 
@@ -65,9 +92,20 @@ class PermissionListener
     {
         [$controller, $methodName] = $controllers;
 
-        $attributes = (new ReflectionObject($controller))->getMethod($methodName)->getAttributes(PermissionMiddleware::class);
+        $attributes = (new ReflectionClass($controller))->getMethod($methodName)->getAttributes(PermissionMiddleware::class);
         foreach ($attributes as $attribute) {
-            $this->checkPermissions($attribute->newInstance());
+            /** @var PermissionMiddleware $attributeInstance */
+            $attributeInstance = $attribute->newInstance();
+            if ($attributeInstance->afterResponse) {
+                continue;
+            }
+
+            $environments = $attributeInstance->environment;
+            if ($environments !== null && !in_array($this->environment, $environments)) {
+                continue;
+            }
+
+            $this->checkPermissions($attributeInstance);
         }
     }
 
