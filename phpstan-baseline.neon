@@ -1,11 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Parameter \\#1 \\$objectOrClass of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
-			count: 1
-			path: src/EventListener/ResponseListener.php
-
-		-
 			message: "#^Readonly property Danilovl\\\\PermissionMiddlewareBundle\\\\Model\\\\DatePermissionModel\\:\\:\\$from is assigned outside of the constructor\\.$#"
 			count: 3
 			path: src/Model/DatePermissionModel.php

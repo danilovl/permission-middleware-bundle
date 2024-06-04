@@ -31,9 +31,12 @@ class ResponseListener implements EventSubscriberInterface
     {
         $this->responseEvent = $event;
 
-        /** @var string $controller */
+        /** @var string|array $controller */
         $controller = $event->getRequest()->attributes->get('_controller', '');
-        $controller = explode('::', $controller);
+
+        if (is_string($controller)) {
+            $controller = explode('::', $controller);
+        }
 
         if (!is_array($controller) || count($controller) !== 2) {
             return;
