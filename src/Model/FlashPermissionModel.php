@@ -6,12 +6,13 @@ use Danilovl\PermissionMiddlewareBundle\Attribute\RequireModelOption;
 use Danilovl\PermissionMiddlewareBundle\Interfaces\CheckInterface;
 use Danilovl\PermissionMiddlewareBundle\Traits\OptionsCheckTrait;
 
-#[RequireModelOption(['type' , 'trans'])]
+#[RequireModelOption(['type', 'trans'])]
 class FlashPermissionModel implements CheckInterface
 {
     use OptionsCheckTrait;
 
     public readonly string $type;
+
     public readonly TransPermissionModel $trans;
 
     public function __construct(array $options)

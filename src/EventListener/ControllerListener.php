@@ -28,6 +28,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ControllerListener implements EventSubscriberInterface
 {
     protected bool $checkPermissionMethod = true;
+
     protected ControllerEvent $controllerEvent;
 
     public function __construct(
@@ -166,6 +167,7 @@ class ControllerListener implements EventSubscriberInterface
             foreach ($roles as $role) {
                 if ($this->security->isGranted($role, $user)) {
                     $isGranted = true;
+
                     break;
                 }
             }
@@ -176,11 +178,8 @@ class ControllerListener implements EventSubscriberInterface
         }
 
         $userNames = $permissionMiddleware->user->userNames;
-        if ($userNames !== null && !in_array($user->getUserIdentifier(), $userNames, true)) {
-            return false;
-        }
 
-        return true;
+        return !($userNames !== null && !in_array($user->getUserIdentifier(), $userNames, true));
     }
 
     protected function checkDate(PermissionMiddleware $permissionMiddleware): bool

@@ -50,9 +50,8 @@ class PermissionMiddlewareTest extends TestCase
 
     public static function attributeInstanceProvider(): Generator
     {
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     service: [
                         'name' => 'app.middleware.create_article',
@@ -79,9 +78,8 @@ class PermissionMiddlewareTest extends TestCase
 
     public static function separateOptionsProvider(): Generator
     {
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     service: [
                         'name' => 'app.middleware.create_article',
@@ -98,9 +96,8 @@ class PermissionMiddlewareTest extends TestCase
             ])
         ];
 
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     class: [
                         'name' => 'App\Middleware\ShowCalendarMiddleware',
@@ -117,9 +114,8 @@ class PermissionMiddlewareTest extends TestCase
             ])
         ];
 
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     user: [
                         'userNames' => ['admin', 'editor', 'publisher'],
@@ -140,9 +136,8 @@ class PermissionMiddlewareTest extends TestCase
             ])
         ];
 
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     user: [
                         'roles' => ['ROLE_ADMIN'],
@@ -165,9 +160,8 @@ class PermissionMiddlewareTest extends TestCase
             ])
         ];
 
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     redirect: [
                         'route' => 'homepage',
@@ -194,9 +188,8 @@ class PermissionMiddlewareTest extends TestCase
             ])
         ];
 
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     date: [
                         'from' => '01-01-2021',
@@ -238,9 +231,8 @@ class PermissionMiddlewareTest extends TestCase
 
     public static function checkArgumentsProvider(): Generator
     {
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     redirect: [],
                     service: [
@@ -254,9 +246,8 @@ class PermissionMiddlewareTest extends TestCase
             'Argument "redirect" is not null but empty.'
         ];
 
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     user: [
                         'roles' => ['ROLE_USER']
@@ -273,9 +264,8 @@ class PermissionMiddlewareTest extends TestCase
             'Argument "redirect" is not null but empty.'
         ];
 
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     user: [
                         'roles' => ['ROLE_USER']
@@ -288,9 +278,8 @@ class PermissionMiddlewareTest extends TestCase
             'Argument "user" must be empty if afterResponse is true.'
         ];
 
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     redirect: [],
                     afterResponse: true
@@ -301,9 +290,8 @@ class PermissionMiddlewareTest extends TestCase
             'Argument "redirect" must be empty if afterResponse is true.'
         ];
 
-        yield
-        [
-            new class {
+        yield [
+            new class() {
                 #[PermissionMiddleware(
                     date: [],
                     afterResponse: true

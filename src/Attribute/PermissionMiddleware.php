@@ -16,9 +16,13 @@ use Danilovl\PermissionMiddlewareBundle\Model\{
 class PermissionMiddleware
 {
     public readonly ?UserPermissionModel $user;
+
     public readonly ?DatePermissionModel $date;
+
     public readonly ?RedirectPermissionModel $redirect;
+
     public readonly ?ClassPermissionModel $class;
+
     public readonly ?ServicePermissionModel $service;
 
     public function __construct(

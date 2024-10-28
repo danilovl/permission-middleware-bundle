@@ -12,7 +12,9 @@ class RedirectPermissionModel implements CheckInterface
     use OptionsCheckTrait;
 
     public readonly string $route;
+
     public readonly array $parameters;
+
     public readonly ?FlashPermissionModel $flash;
 
     public function __construct(array $options)

@@ -32,12 +32,12 @@ class DatePermissionModelTest extends TestCase
         yield [['from' => '2020-01-01']];
         yield [['from' => '2020-01-01', 'exceptionMessage' => ['message' => 'Exception message']]];
         yield [['from' => new DateTimeImmutable('2020-01-01')]];
-        yield [['from' => new DateTimeImmutable('now'), 'to' => new DateTimeImmutable('now + 1 day'),]];
+        yield [['from' => new DateTimeImmutable('now'), 'to' => new DateTimeImmutable('now + 1 day')]];
     }
 
     public static function optionsFailedProvider(): Generator
     {
-        yield [['from' => new DateTimeImmutable('now'), 'to' => new DateTimeImmutable('now - 1 day'),]];
+        yield [['from' => new DateTimeImmutable('now'), 'to' => new DateTimeImmutable('now - 1 day')]];
         yield [['froms' => '2020-01-01']];
         yield [['test' => '2020-01-01', 'exceptionMessage' => ['messages' => 'Exception message']]];
         yield [['from' => '2020-01-01', 'exceptionMessage' => ['from' => 'Exception message']]];

@@ -6,6 +6,4 @@ use Danilovl\PermissionMiddlewareBundle\Attribute\RequireModelOption;
 use Danilovl\PermissionMiddlewareBundle\Interfaces\CheckInterface;
 
 #[RequireModelOption(['name'])]
-class ClassPermissionModel extends ServicePermissionModel implements CheckInterface
-{
-}
+class ClassPermissionModel extends ServicePermissionModel implements CheckInterface {}

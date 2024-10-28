@@ -12,8 +12,11 @@ class TransPermissionModel implements CheckInterface
     use OptionsCheckTrait;
 
     public readonly string $message;
+
     public readonly array $messageParameters;
+
     public readonly ?string $domain;
+
     public readonly ?string $locale;
 
     public function __construct(array $options)

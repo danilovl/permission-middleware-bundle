@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class ResponseListener implements EventSubscriberInterface
 {
     protected bool $checkPermissionMethod = true;
+
     protected ResponseEvent $responseEvent;
 
     public function __construct(

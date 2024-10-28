@@ -2,6 +2,4 @@
 
 namespace Danilovl\PermissionMiddlewareBundle\Exception;
 
-class LogicException extends \LogicException
-{
-}
+class LogicException extends \LogicException {}

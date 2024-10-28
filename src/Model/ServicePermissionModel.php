@@ -12,8 +12,11 @@ class ServicePermissionModel implements CheckInterface
     use OptionsCheckTrait;
 
     public readonly string $name;
+
     public readonly string $method;
+
     public readonly ?TransPermissionModel $exceptionMessage;
+
     public readonly ?RedirectPermissionModel $redirect;
 
     public function __construct(array $options)

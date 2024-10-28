@@ -14,8 +14,11 @@ class DatePermissionModel implements CheckInterface
     use OptionsCheckTrait;
 
     public readonly ?DateTimeImmutable $from;
+
     public readonly ?DateTimeImmutable $to;
+
     public readonly ?TransPermissionModel $exceptionMessage;
+
     public readonly ?RedirectPermissionModel $redirect;
 
     public function __construct(array $options)

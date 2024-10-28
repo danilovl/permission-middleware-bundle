@@ -12,8 +12,11 @@ class UserPermissionModel implements CheckInterface
     use OptionsCheckTrait;
 
     public readonly ?array $roles;
+
     public readonly ?array $userNames;
+
     public readonly ?TransPermissionModel $exceptionMessage;
+
     public readonly ?RedirectPermissionModel $redirect;
 
     public function __construct(array $options)
