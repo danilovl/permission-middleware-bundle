@@ -13,9 +13,9 @@ class RedirectPermissionModelTest extends TestCase
     #[DataProvider('optionsSuccessProvider')]
     public function testOptionsSuccess(array $options): void
     {
-        new RedirectPermissionModel($options);
+        $this->expectNotToPerformAssertions();
 
-        $this->assertTrue(true);
+        new RedirectPermissionModel($options);
     }
 
     #[DataProvider('optionsFailedProvider')]

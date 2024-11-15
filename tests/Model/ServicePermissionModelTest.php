@@ -13,9 +13,9 @@ class ServicePermissionModelTest extends TestCase
     #[DataProvider('optionsSuccessProvider')]
     public function testOptionsSuccess(array $options): void
     {
-        new ServicePermissionModel($options);
+        $this->expectNotToPerformAssertions();
 
-        $this->assertTrue(true);
+        new ServicePermissionModel($options);
     }
 
     #[DataProvider('optionsFailedProvider')]

@@ -6,6 +6,6 @@ parameters:
  paths:
     - src
     - tests
- treatPhpDocTypesAsCertain: false
- checkMissingIterableValueType: false
- checkGenericClassInNonGenericObjectType: false
+ ignoreErrors:
+    -
+        identifier: missingType.iterableValue

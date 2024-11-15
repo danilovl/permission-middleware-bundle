@@ -13,9 +13,9 @@ class UserPermissionModelTest extends TestCase
     #[DataProvider('optionsSuccessProvider')]
     public function testOptionsSuccess(array $options): void
     {
-        new UserPermissionModel($options);
+        $this->expectNotToPerformAssertions();
 
-        $this->assertTrue(true);
+        new UserPermissionModel($options);
     }
 
     #[DataProvider('optionsFailedProvider')]

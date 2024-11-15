@@ -13,9 +13,9 @@ class FlashPermissionModelTest extends TestCase
     #[DataProvider('optionsSuccessProvider')]
     public function testOptionsSuccess(array $options): void
     {
-        new FlashPermissionModel($options);
+        $this->expectNotToPerformAssertions();
 
-        $this->assertTrue(true);
+        new FlashPermissionModel($options);
     }
 
     #[DataProvider('optionsFailedProvider')]

@@ -13,9 +13,9 @@ class DatePermissionModel implements CheckInterface
 {
     use OptionsCheckTrait;
 
-    public readonly ?DateTimeImmutable $from;
+    public ?DateTimeImmutable $from;
 
-    public readonly ?DateTimeImmutable $to;
+    public ?DateTimeImmutable $to;
 
     public readonly ?TransPermissionModel $exceptionMessage;
 

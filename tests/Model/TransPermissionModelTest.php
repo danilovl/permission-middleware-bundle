@@ -13,9 +13,9 @@ class TransPermissionModelTest extends TestCase
     #[DataProvider('optionsSuccessProvider')]
     public function testOptionsSuccess(array $options): void
     {
-        new TransPermissionModel($options);
+        $this->expectNotToPerformAssertions();
 
-        $this->assertTrue(true);
+        new TransPermissionModel($options);
     }
 
     #[DataProvider('optionsFailedProvider')]

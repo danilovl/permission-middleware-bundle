@@ -1,11 +1,19 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Readonly property Danilovl\\\\PermissionMiddlewareBundle\\\\Model\\\\DatePermissionModel\\:\\:\\$from is assigned outside of the constructor\\.$#"
-			count: 3
-			path: src/Model/DatePermissionModel.php
+			message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<T of object\>\|T of object, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/EventListener/ControllerListener.php
 
 		-
-			message: "#^Readonly property Danilovl\\\\PermissionMiddlewareBundle\\\\Model\\\\DatePermissionModel\\:\\:\\$to is assigned outside of the constructor\\.$#"
-			count: 3
-			path: src/Model/DatePermissionModel.php
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/EventListener/ResponseListener.php
+
+		-
+			message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<T of object\>\|T of object, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/EventListener/ResponseListener.php
