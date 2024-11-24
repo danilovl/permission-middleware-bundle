@@ -26,11 +26,11 @@ class PermissionMiddleware
     public readonly ?ServicePermissionModel $service;
 
     public function __construct(
-        array $user = null,
-        array $date = null,
-        array $redirect = null,
-        array $class = null,
-        array $service = null,
+        ?array $user = null,
+        ?array $date = null,
+        ?array $redirect = null,
+        ?array $class = null,
+        ?array $service = null,
         public readonly ?array $environment = null,
         public readonly bool $afterResponse = false
     ) {
