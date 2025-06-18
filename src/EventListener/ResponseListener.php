@@ -12,6 +12,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ResponseListener implements EventSubscriberInterface
 {
+    public static int $priority = 0;
+
     protected bool $checkPermissionMethod = true;
 
     protected ResponseEvent $responseEvent;
@@ -24,7 +26,7 @@ class ResponseListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::RESPONSE => 'onKernelResponse'
+            KernelEvents::RESPONSE => [['onKernelResponse', self::$priority]]
         ];
     }
 

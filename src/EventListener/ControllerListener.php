@@ -27,6 +27,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ControllerListener implements EventSubscriberInterface
 {
+    public static int $priority = 2_048;
+
     protected bool $checkPermissionMethod = true;
 
     protected ControllerEvent $controllerEvent;
@@ -43,7 +45,7 @@ class ControllerListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::CONTROLLER => 'onKernelController'
+            KernelEvents::CONTROLLER => [['onKernelController', self::$priority]]
         ];
     }
 

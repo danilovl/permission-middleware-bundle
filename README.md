@@ -35,6 +35,14 @@ return [
 
 ### 2. Usage
 
+You can change kernel listener priority.
+
+```yaml
+danilovl_permission_middleware:
+  kernel_controller_priority: 2048
+  kernel_response_priority: 0
+```
+
 Configuration tree options for attribute.
 
 The `accessDeniedHttpException` parameter will be useful for `ClassMiddleware`, `ServiceMiddleware` when you create custom response and you won't want throw default AccessDeniedHttpException.
