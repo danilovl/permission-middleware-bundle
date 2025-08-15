@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class DatePermissionModelTest extends TestCase
 {
-    #[DataProvider('optionsSuccessProvider')]
+    #[DataProvider('provideOptionsSuccessCases')]
     public function testOptionsSuccess(array $options): void
     {
         $this->expectNotToPerformAssertions();
@@ -19,7 +19,7 @@ class DatePermissionModelTest extends TestCase
         new DatePermissionModel($options);
     }
 
-    #[DataProvider('optionsFailedProvider')]
+    #[DataProvider('provideOptionsFailedCases')]
     public function testOptionsFailed(array $options): void
     {
         $this->expectException(LogicException::class);
@@ -27,7 +27,7 @@ class DatePermissionModelTest extends TestCase
         new DatePermissionModel($options);
     }
 
-    public static function optionsSuccessProvider(): Generator
+    public static function provideOptionsSuccessCases(): Generator
     {
         yield [['from' => '2020-01-01']];
         yield [['from' => '2020-01-01', 'exceptionMessage' => ['message' => 'Exception message']]];
@@ -35,7 +35,7 @@ class DatePermissionModelTest extends TestCase
         yield [['from' => new DateTimeImmutable('now'), 'to' => new DateTimeImmutable('now + 1 day')]];
     }
 
-    public static function optionsFailedProvider(): Generator
+    public static function provideOptionsFailedCases(): Generator
     {
         yield [['from' => new DateTimeImmutable('now'), 'to' => new DateTimeImmutable('now - 1 day')]];
         yield [['froms' => '2020-01-01']];

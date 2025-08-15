@@ -18,7 +18,7 @@ use ReflectionClass;
 
 class PermissionMiddlewareTest extends TestCase
 {
-    #[DataProvider('attributeInstanceProvider')]
+    #[DataProvider('provideAttributeInstanceCases')]
     public function testAttributeInstance(object $object, string $method): void
     {
         $attribute = $this->getAttribute($object, $method);
@@ -26,7 +26,7 @@ class PermissionMiddlewareTest extends TestCase
         $this->assertEquals(PermissionMiddleware::class, get_class($attribute));
     }
 
-    #[DataProvider('separateOptionsProvider')]
+    #[DataProvider('provideSeparateOptionsCases')]
     public function testSeparateOptions(
         object $object,
         string $method,
@@ -39,7 +39,7 @@ class PermissionMiddlewareTest extends TestCase
         $this->assertEquals($model, $attributeOptionModel);
     }
 
-    #[DataProvider('checkArgumentsProvider')]
+    #[DataProvider('provideCheckArgumentsCases')]
     public function testCheckArguments(object $object, string $method, string $errorMessage): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -48,7 +48,7 @@ class PermissionMiddlewareTest extends TestCase
         $this->getAttribute($object, $method);
     }
 
-    public static function attributeInstanceProvider(): Generator
+    public static function provideAttributeInstanceCases(): Generator
     {
         yield [
             new class() {
@@ -76,7 +76,7 @@ class PermissionMiddlewareTest extends TestCase
         return $attribute;
     }
 
-    public static function separateOptionsProvider(): Generator
+    public static function provideSeparateOptionsCases(): Generator
     {
         yield [
             new class() {
@@ -229,7 +229,7 @@ class PermissionMiddlewareTest extends TestCase
         ];
     }
 
-    public static function checkArgumentsProvider(): Generator
+    public static function provideCheckArgumentsCases(): Generator
     {
         yield [
             new class() {

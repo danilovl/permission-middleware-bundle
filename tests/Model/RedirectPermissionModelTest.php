@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class RedirectPermissionModelTest extends TestCase
 {
-    #[DataProvider('optionsSuccessProvider')]
+    #[DataProvider('provideOptionsSuccessCases')]
     public function testOptionsSuccess(array $options): void
     {
         $this->expectNotToPerformAssertions();
@@ -18,7 +18,7 @@ class RedirectPermissionModelTest extends TestCase
         new RedirectPermissionModel($options);
     }
 
-    #[DataProvider('optionsFailedProvider')]
+    #[DataProvider('provideOptionsFailedCases')]
     public function testOptionsFailed(array $options): void
     {
         $this->expectException(LogicException::class);
@@ -26,14 +26,14 @@ class RedirectPermissionModelTest extends TestCase
         new RedirectPermissionModel($options);
     }
 
-    public static function optionsSuccessProvider(): Generator
+    public static function provideOptionsSuccessCases(): Generator
     {
         yield [['route' => 'route']];
         yield [['route' => 'route', 'parameters' => ['id' => 1]]];
         yield [['route' => 'route', 'flash' => ['type' => 'success', 'trans' => ['message' => 'Flash message']]]];
     }
 
-    public static function optionsFailedProvider(): Generator
+    public static function provideOptionsFailedCases(): Generator
     {
         yield [['routes' => 'warning']];
         yield [['parameterss' => 'warning']];

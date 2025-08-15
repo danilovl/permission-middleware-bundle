@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class TransPermissionModelTest extends TestCase
 {
-    #[DataProvider('optionsSuccessProvider')]
+    #[DataProvider('provideOptionsSuccessCases')]
     public function testOptionsSuccess(array $options): void
     {
         $this->expectNotToPerformAssertions();
@@ -18,7 +18,7 @@ class TransPermissionModelTest extends TestCase
         new TransPermissionModel($options);
     }
 
-    #[DataProvider('optionsFailedProvider')]
+    #[DataProvider('provideOptionsFailedCases')]
     public function testOptionsFailed(array $options): void
     {
         $this->expectException(LogicException::class);
@@ -26,7 +26,7 @@ class TransPermissionModelTest extends TestCase
         new TransPermissionModel($options);
     }
 
-    public static function optionsSuccessProvider(): Generator
+    public static function provideOptionsSuccessCases(): Generator
     {
         yield [['message' => 'message']];
         yield [['message' => 'message', 'messageParameters' => []]];
@@ -34,7 +34,7 @@ class TransPermissionModelTest extends TestCase
         yield [['message' => 'message', 'locale' => 'en']];
     }
 
-    public static function optionsFailedProvider(): Generator
+    public static function provideOptionsFailedCases(): Generator
     {
         yield [['messages' => 'message']];
         yield [['message' => 'message', 'messageParameterss' => []]];

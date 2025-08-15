@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class ClassPermissionModelTest extends TestCase
 {
-    #[DataProvider('optionsSuccessProvider')]
+    #[DataProvider('provideOptionsSuccessCases')]
     public function testOptionsSuccess(array $options): void
     {
         $this->expectNotToPerformAssertions();
@@ -18,7 +18,7 @@ class ClassPermissionModelTest extends TestCase
         new ClassPermissionModel($options);
     }
 
-    #[DataProvider('optionsFailedProvider')]
+    #[DataProvider('provideOptionsFailedCases')]
     public function testOptionsFailed(array $options): void
     {
         $this->expectException(LogicException::class);
@@ -26,14 +26,14 @@ class ClassPermissionModelTest extends TestCase
         new ClassPermissionModel($options);
     }
 
-    public static function optionsSuccessProvider(): Generator
+    public static function provideOptionsSuccessCases(): Generator
     {
         yield [['name' => 'Class']];
         yield [['name' => 'Class', 'method' => '__invoke']];
         yield [['name' => 'Class', 'method' => '__invoke', 'exceptionMessage' => ['message' => 'Exception message']]];
     }
 
-    public static function optionsFailedProvider(): Generator
+    public static function provideOptionsFailedCases(): Generator
     {
         yield [['names' => 'Class']];
         yield [['name' => 'Class', 'methods' => '__invoke']];
