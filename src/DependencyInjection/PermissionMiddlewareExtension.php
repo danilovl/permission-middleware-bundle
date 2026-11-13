@@ -24,12 +24,12 @@ class PermissionMiddlewareExtension extends Extension
         $loader->load('services.yaml');
 
         $kernelControllerPriority = $config['kernel_controller_priority'];
-        if (!empty($kernelControllerPriority)) {
+        if ($kernelControllerPriority !== null) {
             ControllerListener::$priority = $kernelControllerPriority;
         }
 
         $kernelResponsePriority = $config['kernel_response_priority'];
-        if (!empty($kernelResponsePriority)) {
+        if ($kernelResponsePriority !== null) {
             ResponseListener::$priority = $kernelResponsePriority;
         }
     }

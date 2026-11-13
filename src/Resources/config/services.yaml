@@ -6,6 +6,7 @@ services:
 
   Danilovl\PermissionMiddlewareBundle\EventListener\ControllerListener:
     arguments:
+      $security: '@?security.helper'
       $container: '@service_container'
       $environment: '%kernel.environment%'
 

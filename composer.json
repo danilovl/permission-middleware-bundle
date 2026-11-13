@@ -22,10 +22,14 @@
     "require": {
         "php": "^8.5",
         "symfony/framework-bundle": "^8.0",
-        "symfony/security-bundle": "^8.0",
-        "symfony/translation-contracts": "^3.6"
+        "symfony/translation-contracts": "^3.6",
+        "symfony/yaml": "^8.0"
+    },
+    "suggest": {
+        "symfony/security-bundle": "Required for the \"user\" permission check"
     },
     "require-dev": {
+        "symfony/security-bundle": "^8.0",
         "phpunit/phpunit": "^12.5.6",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan": "^2.1.33",

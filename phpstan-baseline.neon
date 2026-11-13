@@ -1,19 +1,2 @@
 parameters:
-	ignoreErrors:
-		-
-			message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<T of object\>\|T of object, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/EventListener/ControllerListener.php
-
-		-
-			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/EventListener/ResponseListener.php
-
-		-
-			message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<T of object\>\|T of object, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/EventListener/ResponseListener.php
+	ignoreErrors: []

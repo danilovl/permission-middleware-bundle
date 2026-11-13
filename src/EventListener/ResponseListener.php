@@ -3,8 +3,8 @@
 namespace Danilovl\PermissionMiddlewareBundle\EventListener;
 
 use Danilovl\PermissionMiddlewareBundle\Attribute\PermissionMiddleware;
+use Closure;
 use ReflectionClass;
-use ReflectionException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -33,21 +33,26 @@ class ResponseListener implements EventSubscriberInterface
     public function onKernelResponse(ResponseEvent $event): void
     {
         $this->responseEvent = $event;
+        $this->checkPermissionMethod = true;
 
-        /** @var string|array $controller */
+        /** @var string|array|object $controller */
         $controller = $event->getRequest()->attributes->get('_controller', '');
 
         if (is_string($controller)) {
             $controller = explode('::', $controller);
+            if (count($controller) === 1 && class_exists($controller[0]) && method_exists($controller[0], '__invoke')) {
+                $controller[] = '__invoke';
+            }
+        } elseif (is_object($controller) && !$controller instanceof Closure && method_exists($controller, '__invoke')) {
+            $controller = [$controller, '__invoke'];
         }
 
         if (!is_array($controller) || count($controller) !== 2) {
             return;
         }
 
-        try {
-            new ReflectionClass($controller[0] ?? '');
-        } catch (ReflectionException) {
+        $class = $controller[0] ?? null;
+        if (!is_object($class) && !(is_string($class) && class_exists($class))) {
             return;
         }
 
@@ -74,7 +79,7 @@ class ResponseListener implements EventSubscriberInterface
                 continue;
             }
 
-            $this->checkPermissionMethod = !($this->checkPermissionMethod === false) && $this->checkPermissions($attribute->newInstance());
+            $this->checkPermissionMethod = !($this->checkPermissionMethod === false) && $this->checkPermissions($attributeInstance);
         }
     }
 

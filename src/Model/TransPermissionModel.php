@@ -31,12 +31,7 @@ class TransPermissionModel implements CheckInterface
 
     public function getArguments(): array
     {
-        $data = [$this->message, $this->messageParameters];
-        if ($this->domain !== null && $this->locale !== null) {
-            $data = array_merge($data, [$this->domain, $this->locale]);
-        }
-
-        return $data;
+        return [$this->message, $this->messageParameters, $this->domain, $this->locale];
     }
 
     public function checkOptions(array $options): void

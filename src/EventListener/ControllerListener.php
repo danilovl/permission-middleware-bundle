@@ -8,9 +8,10 @@ use Danilovl\PermissionMiddlewareBundle\Model\{
     TransPermissionModel,
     RedirectPermissionModel
 };
+use Closure;
 use DateTime;
+use LogicException;
 use ReflectionClass;
-use ReflectionException;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\{
@@ -34,7 +35,7 @@ class ControllerListener implements EventSubscriberInterface
     protected ControllerEvent $controllerEvent;
 
     public function __construct(
-        protected readonly Security $security,
+        protected readonly ?Security $security,
         protected readonly RouterInterface $router,
         protected readonly TranslatorInterface $translator,
         protected readonly RequestStack $requestStack,
@@ -51,14 +52,14 @@ class ControllerListener implements EventSubscriberInterface
 
     public function onKernelController(ControllerEvent $event): void
     {
+        $this->checkPermissionMethod = true;
+
         $controller = $event->getController();
-        if (!is_array($controller) || count($controller) !== 2) {
-            return;
+        if (is_object($controller) && !$controller instanceof Closure && method_exists($controller, '__invoke')) {
+            $controller = [$controller, '__invoke'];
         }
 
-        try {
-            new ReflectionClass($controller[0] ?? '');
-        } catch (ReflectionException) {
+        if (!is_array($controller)) {
             return;
         }
 
@@ -145,7 +146,6 @@ class ControllerListener implements EventSubscriberInterface
         ?TransPermissionModel $trans
     ): void {
         if ($redirect !== null) {
-            $this->addFlashBag($redirect->flash);
             $this->setControllerRedirectResponse($redirect);
 
             return;
@@ -158,6 +158,10 @@ class ControllerListener implements EventSubscriberInterface
 
     protected function checkUser(PermissionMiddleware $permissionMiddleware): bool
     {
+        if ($this->security === null) {
+            throw new LogicException('PermissionMiddleware option "user" requires symfony/security-bundle.');
+        }
+
         $user = $this->security->getUser();
         if ($user === null || $permissionMiddleware->user === null) {
             return false;

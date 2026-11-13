@@ -16,11 +16,11 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('kernel_controller_priority')
+                ->integerNode('kernel_controller_priority')
                     ->defaultNull()
                     ->info('Priority for the controller listener')
                 ->end()
-                ->scalarNode('kernel_response_priority')
+                ->integerNode('kernel_response_priority')
                     ->defaultNull()
                     ->info('Priority for the response listener')
                 ->end()

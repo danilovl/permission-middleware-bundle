@@ -26,6 +26,14 @@ class TransPermissionModelTest extends TestCase
         new TransPermissionModel($options);
     }
 
+    #[DataProvider('provideGetArgumentsCases')]
+    public function testGetArguments(array $options, array $expected): void
+    {
+        $model = new TransPermissionModel($options);
+
+        $this->assertSame($expected, $model->getArguments());
+    }
+
     public static function provideOptionsSuccessCases(): Generator
     {
         yield [['message' => 'message']];
@@ -39,5 +47,15 @@ class TransPermissionModelTest extends TestCase
         yield [['messages' => 'message']];
         yield [['message' => 'message', 'messageParameterss' => []]];
         yield [['messageParameters' => []]];
+    }
+
+    public static function provideGetArgumentsCases(): Generator
+    {
+        yield [['message' => 'message'], ['message', [], null, null]];
+        yield [['message' => 'message', 'messageParameters' => ['%a%' => 1]], ['message', ['%a%' => 1], null, null]];
+        yield [['message' => 'message', 'domain' => 'domain'], ['message', [], 'domain', null]];
+        yield [['message' => 'message', 'locale' => 'en'], ['message', [], null, 'en']];
+        yield [['message' => 'message', 'domain' => 'domain', 'locale' => 'en'], ['message', [], 'domain', 'en']];
+        yield [['message' => 'message', 'domain' => '', 'locale' => ''], ['message', [], null, null]];
     }
 }
